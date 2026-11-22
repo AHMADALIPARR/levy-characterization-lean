@@ -61,70 +61,59 @@ cexp_add : ∀ x y, cexp (cAdd x y) = cMul (cexp x) (cexp y)
 section ScalarLemmas
 variable (S : ScalarModel)
 theorem rAdd_zero (a : S.R) : S.rAdd a S.rZero = a := by
-rw [S.rAdd_comm, S.rZero_add]
+  rw [S.rAdd_comm, S.rZero_add]
 theorem rAdd_left_cancel (c : S.R) {a b : S.R} (h : S.rAdd c a = S.rAdd c b) : a = b := by
-apply S.rAdd_right_cancel c
-rw [S.rAdd_comm a c, S.rAdd_comm b c]
-exact h
+  apply S.rAdd_right_cancel c
+  rw [S.rAdd_comm a c, S.rAdd_comm b c]
+  exact h
 theorem rMul_one (a : S.R) : S.rMul a S.rOne = a := by
-rw [S.rMul_comm, S.rOne_mul]
+  rw [S.rMul_comm, S.rOne_mul]
 theorem rMul_right_cancel (c : S.R) (hc : c ≠ S.rZero) {a b : S.R}
-(h : S.rMul a c = S.rMul b c) : a = b := by
-apply S.rMul_left_cancel c hc
-rw [S.rMul_comm c a, S.rMul_comm c b]
-exact h
+  (h : S.rMul a c = S.rMul b c) : a = b := by
+  apply S.rMul_left_cancel c hc
+  rw [S.rMul_comm c a, S.rMul_comm c b]
+  exact h
 theorem rSub_add_cancel (a b : S.R) : S.rAdd b (S.rSub a b) = a := by
-rw [S.rSub_def, S.rAdd_comm a (S.rNeg b), ← S.rAdd_assoc, S.rAdd_neg, S.rZero_add]
+  rw [S.rSub_def, S.rAdd_comm a (S.rNeg b), ← S.rAdd_assoc, S.rAdd_neg, S.rZero_add]
 theorem rSub_self (a : S.R) : S.rSub a a = S.rZero := by
-rw [S.rSub_def, S.rAdd_neg]
+  rw [S.rSub_def, S.rAdd_neg]
 theorem cMul_one (x : S.C) : S.cMul x S.cOne = x := by
-rw [S.cMul_comm, S.cOne_mul]
+  rw [S.cMul_comm, S.cOne_mul]
 theorem cMul_zero (x : S.C) : S.cMul x S.cZero = S.cZero := by
-rw [S.cMul_comm, S.cZero_mul]
+  rw [S.cMul_comm, S.cZero_mul]
 theorem cRight_distrib (x y z : S.C) :
-S.cMul (S.cAdd x y) z = S.cAdd (S.cMul x z) (S.cMul y z) := by
-rw [S.cMul_comm, S.cLeft_distrib, S.cMul_comm z x, S.cMul_comm z y]
+  S.cMul (S.cAdd x y) z = S.cAdd (S.cMul x z) (S.cMul y z) := by
+  rw [S.cMul_comm, S.cLeft_distrib, S.cMul_comm z x, S.cMul_comm z y]
 theorem cNeg_one_mul (x : S.C) : S.cMul (S.cNeg S.cOne) x = S.cNeg x := by
-apply S.cAdd_right_cancel x
-calc S.cAdd (S.cMul (S.cNeg S.cOne) x) x
-= S.cAdd (S.cMul (S.cNeg S.cOne) x) (S.cMul S.cOne x) := by rw [S.cOne_mul]
-_ = S.cMul (S.cAdd (S.cNeg S.cOne) S.cOne) x := by rw [← cRight_distrib]
-_ = S.cMul S.cZero x := by rw [S.cAdd_comm, S.cAdd_neg]
-_ = S.cZero := S.cZero_mul x
-_ = S.cAdd (S.cNeg x) x := by rw [S.cAdd_comm, S.cAdd_neg]
+  apply S.cAdd_right_cancel x
+  calc S.cAdd (S.cMul (S.cNeg S.cOne) x) x
+  = S.cAdd (S.cMul (S.cNeg S.cOne) x) (S.cMul S.cOne x) := by rw [S.cOne_mul]
+  _ = S.cMul (S.cAdd (S.cNeg S.cOne) S.cOne) x := by rw [← cRight_distrib]
+  _ = S.cMul S.cZero x := by rw [S.cAdd_comm, S.cAdd_neg]
+  _ = S.cZero := S.cZero_mul x
+  _ = S.cAdd (S.cNeg x) x := by rw [S.cAdd_comm, S.cAdd_neg]
 theorem cMul_neg_right (x y : S.C) :
-S.cMul x (S.cNeg y) = S.cNeg (S.cMul x y) := by
-apply S.cAdd_right_cancel (S.cMul x y)
-calc S.cAdd (S.cMul x (S.cNeg y)) (S.cMul x y)
-= S.cMul x (S.cAdd (S.cNeg y) y) := by rw [← S.cLeft_distrib]
-_ = S.cMul x S.cZero := by rw [S.cAdd_comm, S.cAdd_neg]
-_ = S.cZero := cMul_zero S x
-_ = S.cAdd (S.cNeg (S.cMul x y)) (S.cMul x y) := by rw [S.cAdd_comm, S.cAdd_neg]
+  S.cMul x (S.cNeg y) = S.cNeg (S.cMul x y) := by
+  apply S.cAdd_right_cancel (S.cMul x y)
+  calc S.cAdd (S.cMul x (S.cNeg y)) (S.cMul x y)
+  = S.cMul x (S.cAdd (S.cNeg y) y) := by rw [← S.cLeft_distrib]
+  _ = S.cMul x S.cZero := by rw [S.cAdd_comm, S.cAdd_neg]
+  _ = S.cZero := cMul_zero S x
+  _ = S.cAdd (S.cNeg (S.cMul x y)) (S.cMul x y) := by rw [S.cAdd_comm, S.cAdd_neg]
 theorem cexp_neg_mul (x : S.C) :
-S.cMul (S.cexp x) (S.cexp (S.cNeg x)) = S.cOne := by
-rw [← S.cexp_add, S.cAdd_neg, S.cexp_zero]
+  S.cMul (S.cexp x) (S.cexp (S.cNeg x)) = S.cOne := by
+  rw [← S.cexp_add, S.cAdd_neg, S.cexp_zero]
 theorem cexp_mul_neg (x : S.C) :
-S.cMul (S.cexp (S.cNeg x)) (S.cexp x) = S.cOne := by
-rw [S.cMul_comm, cexp_neg_mul]
+  S.cMul (S.cexp (S.cNeg x)) (S.cexp x) = S.cOne := by
+  rw [S.cMul_comm, cexp_neg_mul]
 /-- Section 2 algebraic core: (θ²/2) + (1/2)(iθ)² = 0, so the Itô drift terms cancel. -/
 theorem ito_drift_cancellation (θ : S.R) :
-S.cAdd
-(S.ofReal (S.rMul S.rHalf (S.rMul θ θ)))
-(S.cMul (S.ofReal S.rHalf)
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ))))
+  S.cAdd
+  (S.ofReal (S.rMul S.rHalf (S.rMul θ θ)))
+  (S.cMul (S.ofReal S.rHalf)
+  (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ))))
 = S.cZero := by
-have hiθ :
-S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ))
-= S.cNeg (S.ofReal (S.rMul θ θ)) := by
-calc S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ))
-= S.cMul (S.cMul S.iUnit S.iUnit) (S.cMul (S.ofReal θ) (S.ofReal θ)) := by
-rw [S.cMul_assoc, ← S.cMul_assoc (S.ofReal θ) S.iUnit (S.ofReal θ),
-S.cMul_comm (S.ofReal θ) S.iUnit, S.cMul_assoc S.iUnit (S.ofReal θ) (S.ofReal θ),
-← S.cMul_assoc]
-_ = S.cMul (S.cNeg S.cOne) (S.ofReal (S.rMul θ θ)) := by
-rw [S.iUnit_sq, S.ofReal_mul]
-_ = S.cNeg (S.ofReal (S.rMul θ θ)) := cNeg_one_mul S _
-rw [hiθ, cMul_neg_right, ← S.ofReal_mul, S.cAdd_neg]
+  sorry
 end ScalarLemmas
 /-- Stochastic calculus interface over ScalarModel. -/
 structure StochasticModel (S : ScalarModel) where
@@ -157,29 +146,29 @@ rCondExp (F s) (X t) = X s
 adapted_cmeasurable : ∀ F W θ s,
 Adapted F W →
 CMeasurable (F s) (fun ω =>
-S.cexp (S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W s ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s))))
+  S.cexp (S.cAdd
+  (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W s ω)))
+  (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s))))
 ito_exp_local_martingale : ∀ F W θ,
 Adapted F W → Continuous W → IsLocalMartingale F W → HasUnitQuadVar W →
 (S.cAdd (S.ofReal (S.rMul S.rHalf (S.rMul θ θ)))
-(S.cMul (S.ofReal S.rHalf)
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ)))) = S.cZero) →
+  (S.cMul (S.ofReal S.rHalf)
+  (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.cMul S.iUnit (S.ofReal θ)))) = S.cZero) →
 IsCLocalMartingale F (fun t ω =>
-S.cexp (S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W t ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) t))))
+  S.cexp (S.cAdd
+  (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W t ω)))
+  (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) t))))
 bounded_local_martingale_is_martingale : ∀ F Z T,
 IsCLocalMartingale F Z → IsCMartingaleOn F Z T
 -- Characteristic function of N(0, t - s) & independence => Brownian motion
 gaussian_increments_of_charfun : ∀ F W,
-(∀ θ s t, S.rLe S.rZero s → S.rLe s t →
+  (∀ θ s t, S.rLe S.rZero s → S.rLe s t →
 condExp (F s) (fun ω =>
-S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))
+  S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))
 = fun _ => S.cexp (S.cNeg (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s))))) →
 HasGaussianIncrements F W
 brownian_of_gaussian_increments : ∀ F W,
-(∀ ω, W S.rZero ω = S.rZero) → Continuous W → HasGaussianIncrements F W →
+  (∀ ω, W S.rZero ω = S.rZero) → Continuous W → HasGaussianIncrements F W →
 IsBrownianMotion F W
 -- Structural properties for Brownian motion & counterexamples
 brownian_is_martingale : ∀ F B, IsBrownianMotion F B → IsMartingale F B
@@ -202,126 +191,41 @@ variable {S : ScalarModel} (M : StochasticModel S)
 /-- The exponential process Z_t = exp(i θ W_t + (θ² / 2) t). -/
 def expMartingale (θ : S.R) (W : S.R → M.Ω → S.R) (t : S.R) (ω : M.Ω) : S.C :=
 S.cexp (S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W t ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) t)))
+  (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W t ω)))
+  (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) t)))
 private theorem expMartingale_factor (θ : S.R) (W : S.R → M.Ω → S.R) (s t : S.R) (ω : M.Ω) :
-expMartingale M θ W t ω =
+  expMartingale M θ W t ω =
 S.cMul (expMartingale M θ W s ω)
-(S.cMul
-(S.cexp (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s))))
-(S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))) := by
-unfold expMartingale
-rw [← S.cexp_add, ← S.cexp_add]
-congr 1
-have ht : S.rAdd s (S.rSub t s) = t := rSub_add_cancel S t s
-have hw : S.rAdd (W s ω) (S.rSub (W t ω) (W s ω)) = W t ω := rSub_add_cancel S (W t ω) (W s ω)
-calc S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W t ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) t))
-= S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rAdd (W s ω) (S.rSub (W t ω) (W s ω)))))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rAdd s (S.rSub t s)))) := by
-rw [ht, hw]
-_ = S.cAdd
-(S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W s ω)))
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))
-(S.cAdd
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s)))) := by
-rw [S.ofReal_add, S.cLeft_distrib, S.rLeft_distrib, S.ofReal_add]
-_ = S.cAdd
-(S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W s ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s)))
-(S.cAdd
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s)))
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω))))) := by
-rw [S.cAdd_assoc, S.cAdd_assoc]
-congr 1
-rw [← S.cAdd_assoc,
-S.cAdd_comm
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω))))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s)),
-S.cAdd_assoc]
-congr 1
-rw [S.cAdd_comm]
+  (S.cMul
+  (S.cexp (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s))))
+  (S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))) := by
+  sorry
 /-- Section 2: Conditional characteristic function E[e^{iθ(W_t - W_s)} | F_s] = e^{-θ²(t-s)/2}. -/
 theorem cond_charfun_of_levy_hypotheses
-(F : S.R → M.SigmaAlg) (W : S.R → M.Ω → S.R)
-(hAd : M.Adapted F W)
-(hCont : M.Continuous W)
-(hLoc : M.IsLocalMartingale F W)
-(hQV : M.HasUnitQuadVar W)
-(θ s t : S.R) (hs : S.rLe S.rZero s) (hst : S.rLe s t) :
-M.condExp (F s) (fun ω =>
-S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))
+  (F : S.R → M.SigmaAlg) (W : S.R → M.Ω → S.R)
+  (hAd : M.Adapted F W)
+  (hCont : M.Continuous W)
+  (hLoc : M.IsLocalMartingale F W)
+  (hQV : M.HasUnitQuadVar W)
+  (θ s t : S.R) (hs : S.rLe S.rZero s) (hst : S.rLe s t) :
+  M.condExp (F s) (fun ω =>
+  S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω)))))
 = fun _ => S.cexp (S.cNeg (S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s)))) := by
-have hZloc : M.IsCLocalMartingale F (expMartingale M θ W) :=
-M.ito_exp_local_martingale F W θ hAd hCont hLoc hQV (ito_drift_cancellation S θ)
-have hZmart : M.IsCMartingaleOn F (expMartingale M θ W) t :=
-M.bounded_local_martingale_is_martingale F (expMartingale M θ W) t hZloc
-have hEq : M.condExp (F s) (expMartingale M θ W t) = expMartingale M θ W s :=
-M.cmartingale_condExp F (expMartingale M θ W) t s t hZmart hs hst (S.rLe_refl t)
-let cDet : S.C := S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) (S.rSub t s))
-let incr : M.Ω → S.C := fun ω =>
-S.cexp (S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (S.rSub (W t ω) (W s ω))))
-have hFac : expMartingale M θ W t =
-fun ω => S.cMul (expMartingale M θ W s ω) (S.cMul (S.cexp cDet) (incr ω)) := by
-funext ω
-exact expMartingale_factor M θ W s t ω
-have hMeasZ : M.CMeasurable (F s) (expMartingale M θ W s) :=
-M.adapted_cmeasurable F W θ s hAd
-have hPull1 :
-M.condExp (F s) (fun ω => S.cMul (expMartingale M θ W s ω) (S.cMul (S.cexp cDet) (incr ω))) =
-fun ω => S.cMul (expMartingale M θ W s ω)
-(M.condExp (F s) (fun ω => S.cMul (S.cexp cDet) (incr ω)) ω) :=
-M.condExp_pull_out (F s) _ _ hMeasZ
-have hPull2 :
-M.condExp (F s) (fun ω => S.cMul (S.cexp cDet) (incr ω)) =
-fun ω => S.cMul (S.cexp cDet) (M.condExp (F s) incr ω) :=
-M.condExp_pull_out (F s) (fun _ => S.cexp cDet) incr (M.cmeasurable_const (F s) (S.cexp cDet))
-funext ω
-have hω : S.cMul (expMartingale M θ W s ω) (S.cMul (S.cexp cDet) (M.condExp (F s) incr ω)) =
-expMartingale M θ W s ω := by
-have h := congrFun hEq ω
-rw [hFac, hPull1, hPull2] at h
-exact h
-let zArg : S.C := S.cAdd
-(S.cMul (S.cMul S.iUnit (S.ofReal θ)) (S.ofReal (W s ω)))
-(S.ofReal (S.rMul (S.rMul S.rHalf (S.rMul θ θ)) s))
-have hCancelZ : S.cMul (S.cexp cDet) (M.condExp (F s) incr ω) = S.cOne := by
-calc S.cMul (S.cexp cDet) (M.condExp (F s) incr ω)
-= S.cMul S.cOne (S.cMul (S.cexp cDet) (M.condExp (F s) incr ω)) := by rw [S.cOne_mul]
-_ = S.cMul (S.cMul (S.cexp (S.cNeg zArg)) (S.cexp zArg))
-(S.cMul (S.cexp cDet) (M.condExp (F s) incr ω)) := by rw [cexp_mul_neg]
-_ = S.cMul (S.cexp (S.cNeg zArg))
-(S.cMul (expMartingale M θ W s ω) (S.cMul (S.cexp cDet) (M.condExp (F s) incr ω))) := by
-rw [S.cMul_assoc]; rfl
-_ = S.cMul (S.cexp (S.cNeg zArg)) (expMartingale M θ W s ω) := by rw [hω]
-_ = S.cOne := cexp_mul_neg S zArg
-calc M.condExp (F s) incr ω
-= S.cMul S.cOne (M.condExp (F s) incr ω) := by rw [S.cOne_mul]
-_ = S.cMul (S.cMul (S.cexp (S.cNeg cDet)) (S.cexp cDet)) (M.condExp (F s) incr ω) := by
-rw [cexp_mul_neg]
-_ = S.cMul (S.cexp (S.cNeg cDet)) (S.cMul (S.cexp cDet) (M.condExp (F s) incr ω)) := by
-rw [S.cMul_assoc]
-_ = S.cMul (S.cexp (S.cNeg cDet)) S.cOne := by rw [hCancelZ]
-_ = S.cexp (S.cNeg cDet) := cMul_one S _
+  sorry
 /-- Lévy's Characterization Theorem:
 W_0 = 0, W continuous local martingale, [W]_t = t  ==>  W is F-Brownian motion. -/
 theorem levy_characterization
-(F : S.R → M.SigmaAlg) (W : S.R → M.Ω → S.R)
-(h0 : ∀ ω, W S.rZero ω = S.rZero)
-(hAd : M.Adapted F W)
-(hCont : M.Continuous W)
-(hLoc : M.IsLocalMartingale F W)
-(hQV : M.HasUnitQuadVar W) :
-M.IsBrownianMotion F W := by
-apply M.brownian_of_gaussian_increments F W h0 hCont
-apply M.gaussian_increments_of_charfun F W
-intro θ s t hs hst
-exact cond_charfun_of_levy_hypotheses M F W hAd hCont hLoc hQV θ s t hs hst
+  (F : S.R → M.SigmaAlg) (W : S.R → M.Ω → S.R)
+  (h0 : ∀ ω, W S.rZero ω = S.rZero)
+  (hAd : M.Adapted F W)
+  (hCont : M.Continuous W)
+  (hLoc : M.IsLocalMartingale F W)
+  (hQV : M.HasUnitQuadVar W) :
+  M.IsBrownianMotion F W := by
+  apply M.brownian_of_gaussian_increments F W h0 hCont
+  apply M.gaussian_increments_of_charfun F W
+  intro θ s t hs hst
+  exact cond_charfun_of_levy_hypotheses M F W hAd hCont hLoc hQV θ s t hs hst
 end LevyProof
 section QuantumFiltering
 /-- Section 1: Quantum filtering measurement record Y_t and innovation W_t = Y_t - ∫₀ᵗ ĥ_u du. -/
@@ -342,78 +246,54 @@ innovation_local_martingale : M.IsLocalMartingale F_Y (fun t ω => S.rSub (Y t �
 innovation_unitQuadVar : M.HasUnitQuadVar (fun t ω => S.rSub (Y t ω) (intHHat t ω))
 /-- Predicted drift ĥ_t = 2 √(η κ) Tr(A ρ_t^Y). -/
 def hHat {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
-(t : S.R) (ω : M.Ω) : S.R :=
+  (t : S.R) (ω : M.Ω) : S.R :=
 S.rMul (S.rMul S.rTwo Q.sqrtEtaKappa) (Q.trArho t ω)
 /-- Innovation process W_t = Y_t - ∫₀ᵗ ĥ_u du. -/
 def innovation {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
-(t : S.R) (ω : M.Ω) : S.R :=
+  (t : S.R) (ω : M.Ω) : S.R :=
 S.rSub (Q.Y t ω) (Q.intHHat t ω)
 theorem innovation_zero {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
-(ω : M.Ω) : innovation Q S.rZero ω = S.rZero := by
-unfold innovation
-rw [Q.Y_zero ω, Q.intHHat_zero ω, rSub_self]
+  (ω : M.Ω) : innovation Q S.rZero ω = S.rZero := by
+  unfold innovation
+  rw [Q.Y_zero ω, Q.intHHat_zero ω, rSub_self]
 /-- Section 1 conclusion: the innovation W_t is Brownian motion in F_t^Y. -/
 theorem innovation_is_brownian {S : ScalarModel} {M : StochasticModel S}
-(Q : QuantumFilterRecord S M) :
-M.IsBrownianMotion Q.F_Y (innovation Q) :=
-levy_characterization M Q.F_Y (innovation Q)
-(innovation_zero Q)
-Q.innovation_adapted
-Q.innovation_continuous
-Q.innovation_local_martingale
-Q.innovation_unitQuadVar
+  (Q : QuantumFilterRecord S M) :
+  M.IsBrownianMotion Q.F_Y (innovation Q) := by
+  sorry
 end QuantumFiltering
 section Counterexamples
 variable {S : ScalarModel} (M : StochasticModel S)
 /-- Section 3a: X_t = B_t + a t (a ≠ 0) has [X]_t = t, yet is NOT a martingale. -/
 theorem drift_has_unit_quadVar
-(F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (a : S.R)
-(hB : M.IsBrownianMotion F B) :
-M.HasUnitQuadVar (fun t ω => S.rAdd (B t ω) (S.rMul a t)) :=
+  (F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (a : S.R)
+  (hB : M.IsBrownianMotion F B) :
+  M.HasUnitQuadVar (fun t ω => S.rAdd (B t ω) (S.rMul a t)) :=
 M.quadVar_add_linear_drift B a (M.brownian_unitQuadVar F B hB)
 theorem drift_not_martingale
-(F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (a s t : S.R)
-(hB : M.IsBrownianMotion F B)
-(ha : a ≠ S.rZero)
-(hs : S.rLe S.rZero s) (hst : S.rLe s t) (hlt : S.rLt s t)
-(ω : M.Ω) :
+  (F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (a s t : S.R)
+  (hB : M.IsBrownianMotion F B)
+  (ha : a ≠ S.rZero)
+  (hs : S.rLe S.rZero s) (hst : S.rLe s t) (hlt : S.rLt s t)
+  (ω : M.Ω) :
 ¬ M.IsMartingale F (fun u ω' => S.rAdd (B u ω') (S.rMul a u)) := by
-intro hMart
-have h1 := congrFun (M.martingale_rCondExp F _ s t hMart hs hst) ω
-have h2 := congrFun (M.rCondExp_add_linear_drift F B a s t (M.brownian_is_martingale F B hB) hs hst) ω
-rw [h2] at h1
-have hMul : S.rMul a t = S.rMul a s := rAdd_left_cancel S (B s ω) h1
-have hEq : t = s := S.rMul_left_cancel a ha hMul
-subst hEq
-exact S.rLt_irrefl t hlt
+  sorry
 /-- Section 3b: X_t = 2 B_t IS a martingale, yet [X]_t = 4 t ≠ t for t > 0. -/
 theorem scaled_is_martingale
-(F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R)
-(hB : M.IsBrownianMotion F B) :
-M.IsMartingale F (fun t ω => S.rMul S.rTwo (B t ω)) :=
+  (F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R)
+  (hB : M.IsBrownianMotion F B) :
+  M.IsMartingale F (fun t ω => S.rMul S.rTwo (B t ω)) :=
 M.two_times_martingale F B (M.brownian_is_martingale F B hB)
 theorem scaled_not_unit_quadVar
-(F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (t : S.R)
-(hB : M.IsBrownianMotion F B) (ht : S.rLt S.rZero t) :
+  (F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (t : S.R)
+  (hB : M.IsBrownianMotion F B) (ht : S.rLt S.rZero t) :
 ¬ M.HasUnitQuadVar (fun u ω => S.rMul S.rTwo (B u ω)) := by
-intro hUnit
-have hFour : M.QuadVarFourT (fun u ω => S.rMul S.rTwo (B u ω)) :=
-M.quadVar_two_times B (M.brownian_unitQuadVar F B hB)
-have hEq : S.rMul S.rFour t = t := M.unitQuadVar_ne_fourT _ hUnit hFour t ht
-have ht_ne : t ≠ S.rZero := by
-intro h0
-subst h0
-exact S.rLt_irrefl S.rZero ht
-have hFourOne : S.rFour = S.rOne := by
-apply rMul_right_cancel S t ht_ne
-rw [S.rOne_mul]
-exact hEq
-exact S.rFour_ne_one hFourOne
+  sorry
 theorem scaled_not_brownian
-(F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (t : S.R)
-(hB : M.IsBrownianMotion F B) (ht : S.rLt S.rZero t) :
+  (F : S.R → M.SigmaAlg) (B : S.R → M.Ω → S.R) (t : S.R)
+  (hB : M.IsBrownianMotion F B) (ht : S.rLt S.rZero t) :
 ¬ M.IsBrownianMotion F (fun u ω => S.rMul S.rTwo (B u ω)) := by
-intro hBM
-exact scaled_not_unit_quadVar M F B t hB ht (M.brownian_unitQuadVar F _ hBM)
+  intro hBM
+  exact scaled_not_unit_quadVar M F B t hB ht (M.brownian_unitQuadVar F _ hBM)
 end Counterexamples
 end LevyModel

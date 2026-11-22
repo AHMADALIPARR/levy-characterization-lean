@@ -338,3 +338,11 @@ cert.pl parr-aes.lisp
 ```
 
 The GL theorems discharge the exhaustive checks symbolically. Bridging to Kestrel's verified AES specification is a single additional `gl::def-gl-thm` equating `gf-mul` with the corresponding function in `kestrel/crypto/aes/aes-spec` (symbol name to be confirmed in that book). The Lean file `LevyCharacterization/AesGF256.lean` provides an independent Init-only cross-check of the same algorithms and known-answer tests.
+
+## 14. Racket port
+
+`racket/parr-math.rkt` is a direct port of the same GF(2⁸) multiply, inversion, and S-Box. It includes exhaustive checkers (`verify-gf256-identity`) and a sampling counterpart to the polynomial verifier. Run the tests with:
+
+```bash
+raco test racket/parr-math.rkt
+```

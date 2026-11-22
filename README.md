@@ -124,3 +124,117 @@ Cite Bray-Ali, arXiv:2305.05624v4, together with the commit hash of this reposit
 ## License
 
 GNU Affero General Public License v3.0. See `LICENSE`. Every source file carries an SPDX header.
+
+## Mathematical primitives
+
+All definitions and theorems below appear in the Lean sources. Names are those of the Lean declarations.
+
+### Real field (`BrayAliModel.lean`)
+
+`RealField` is a structure packaging the operations and axioms of an ordered field with square root:
+
+- Constants: `zero`, `one`, `two`, `four`
+- Operations: `add`, `sub`, `mul`, `div`, `neg`, `sqrt`
+- Relations: `le`, `lt`
+- Axioms: commutativity and associativity of addition and multiplication, additive and multiplicative identities, additive inverses, distributivity, division cancellation, square-root axiom (`sqrt_sq`), order axioms, positivity preservation under addition/multiplication/division.
+
+Derived lemmas include `add_zero`, `mul_one`, `mul_zero`, `right_distrib`, `sub_self`, `neg_mul_left`, `mul_neg_right`, `neg_one_mul`, `add_neg_cancel_right`, `pos_ne_zero`, `nonneg_mul_sq_two`, `sub_le_self_of_nonneg`, `le_add_of_nonneg_right`.
+
+### Four-state Hamiltonian
+
+```lean
+def ham4 (t U D : F.R) (i j : Fin 4) : F.R
+def darkVec4 (i : Fin 4) : F.R
+theorem ham4_symmetric
+theorem ham4_dark_eigenvector
+```
+
+`ham4` is the matrix elements of the 4×4 Hamiltonian. `darkVec4` is the antisymmetric charged combination. `ham4_dark_eigenvector` states that this vector is an eigenvector of energy `U`.
+
+### Three-state reduction and secular equation
+
+```lean
+def ham3 (t U D : F.R) (i j : Fin 3) : F.R
+theorem ham3_symmetric
+def secularPoly (t U D E : F.R) : F.R
+def eps_exact_of_energy (D E : F.R) : F.R
+def p_rare_secular_of_energy (t D E : F.R) : F.R
+theorem eps_exact_from_eigenvector
+def kappa_paper (t U D : F.R) : F.R
+def kappa_onshell (t U D : F.R) : F.R
+theorem kappa_onshell_le_paper
+def eps_bounds (t U D : F.R) : F.R × F.R
+theorem eps_lo_le_hi
+```
+
+`secularPoly` is the cubic obtained after reduction. `eps_exact_of_energy` and `p_rare_secular_of_energy` are the on-shell coupling and rare-state probability expressed in terms of a root of the secular equation. `kappa_paper` and `kappa_onshell` are the two coupling estimates; `kappa_onshell_le_paper` orders them. `eps_bounds` and `eps_lo_le_hi` give the explicit lower and upper bounds used in place of the paper’s approximation.
+
+### Complex numbers and Lindblad step
+
+```lean
+structure ComplexOver (F : RealField)
+def lindblad_prob_factor (factor p_rare : F.R) : F.R
+```
+
+`ComplexOver` supplies the complex arithmetic needed for the characteristic function and the exponential martingale. `lindblad_prob_factor` is the pure-dephasing probability factor appearing in the innovation step.
+
+### Diagnostic kernels (`RKernels.lean`)
+
+Vector and matrix reductions that mirror the R script:
+
+```lean
+def vecSum, vecLen, vecSquare, vecHadamard, vecCumsum, vecWpre
+def vecMean, vecStd, zScore
+def rowSums, matSquare, matHadamard
+def quadraticVariation, martingaleTransform, terminalValue, wSquaredMartingale
+def incrementKurtosis, excessKurtosis
+def fourthMoment, secondMoment
+def levyDiagnostics, matches, allMatch, batchDiagnostics, rKernelMatch
+def windowedQV, ksSup, innovationResidual
+def predictedDrift, innovationInc, matchedResidual
+theorem matchedResidual_eq_dW
+def ensembleStats, reducePaths, seMean, rZ
+theorem rZ_eq_zScore
+def runOnRecord, compareToR
+def safeDiv, clamp, fact, pow
+def rCompatibleReport, mapPaths, foldPath, runningSum
+def pairwiseAbsDiff
+def goodTagMatch, badTagMatch, bothTagsMatch
+```
+
+`quadraticVariation` is \(\sum_k (\Delta W_k)^2\).  
+`martingaleTransform` is \(\sum_k L_k \Delta W_k\).  
+`zScore` is the ordinary one-sample z-statistic.  
+`matchedResidual_eq_dW` states that a correctly specified filter recovers the driving increment.  
+`goodTagMatch` / `badTagMatch` are the predicates that compare a Lean diagnostic record against an R record for the “good” and “bad” filters.
+
+### Lévy interface (`LevyModel.lean`)
+
+```lean
+def expMartingale
+axiom expMartingale_factor
+axiom cond_charfun_of_levy_hypotheses
+theorem levy_characterization
+def hHat, innovation
+axiom innovation_zero
+axiom innovation_is_brownian
+axiom drift_has_unit_quadVar
+theorem scaled_is_martingale
+axiom scaled_not_unit_quadVar
+theorem scaled_not_brownian
+```
+
+`expMartingale` is the Itô exponential. `levy_characterization` is the statement of Lévy’s theorem under the stated hypotheses. The axioms record the interface points that are not yet discharged inside the pure-Lean development.
+
+### GF(2⁸) (`AesGF256.lean`)
+
+```lean
+def gfXtime, gfMulLoop, gfMul
+def gfInv, aesAffine, aesSbox
+```
+
+`gfMul` is the 8-round shift-and-XOR multiply with reduction by `0x11B`. `gfInv` is \(a^{254}\) (with \(0\mapsto 0\)). `aesSbox` is the composition of inversion and the standard AES affine transform.
+
+---
+
+All of the above are present in the sources. Theorems listed as `theorem` are proved; those listed as `axiom` are interface axioms.

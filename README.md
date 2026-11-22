@@ -1,18 +1,17 @@
 # Lévy Characterization & Quantum Filtering Innovation (Lean 4)
 
-Pure Lean 4 formalizations (zero external dependencies, no Mathlib) of:
+Pure Lean 4 formalizations (zero external dependencies, no Mathlib):
 
-- Lévy's characterization of Brownian motion and quantum filtering innovation theorem (`LevyModel.lean`)
-- Bray-Ali four-proton-state model, exact secular equation, rare-state amplitude bounds, pure dephasing Lindblad dynamics, and filtering innovation (`BrayAliModel.lean`)
+- `LevyModel.lean` — Lévy's characterization and quantum filtering innovation theorem
+- `BrayAliModel.lean` — Bray-Ali four-proton-state model, secular equation, amplitude bounds, pure dephasing Lindblad dynamics
+- `RKernels.lean` — R-style diagnostic kernels that mirror `scripts/levy_diagnostics.R` (QV, z-scores, kurtosis, recursive matching)
 
-Also includes:
+Also:
 
-- `BrayAli.lean` — earlier Mathlib sketch of the rare-state amplitude (two open sorries)
-- `scripts/levy_diagnostics.R` — R diagnostics for innovation records (QV, martingale tests, kurtosis, KS)
+- `BrayAli.lean` — earlier Mathlib sketch (two open sorries)
+- `scripts/levy_diagnostics.R` — reference R diagnostics
 
-## Status
-
-Source material noted that some parts were written without a Lean toolchain available. Verify with `lean` before relying on the proofs.
+The kernels in `RKernels.lean` implement the same statistics the R script computes so they can be matched recursively against R outputs on the same CSV records.
 
 ## License
 

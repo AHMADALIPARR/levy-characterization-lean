@@ -8,16 +8,16 @@ Pure Lean 4 formalization (zero external dependencies, no Mathlib) of:
 
 Also includes a sketch of the rare-state amplitude identities for the reduced 3-level Bray-Ali model.
 
+## Files
+
+- `BrayAli.lean` — rare-state amplitude sketch (two open sorries)
+- `scripts/levy_diagnostics.R` — R diagnostics for innovation records (QV, martingale tests, kurtosis, KS)
+- Full pure-Lean `LevyModel.lean` (ScalarModel / StochasticModel, Itô cancellation, conditional characteristic function, innovation theorem) is extracted from the source paste; indentation was flattened. See commit history or request a cleaned version.
+
 ## Status
 
-The formalization packages real/complex exponential algebra and a stochastic calculus interface as explicit structures, then proves the Itô drift cancellation, conditional characteristic function identity, and Lévy's characterization from those interfaces.
-
-**Note:** The source material indicated that some parts were written without a Lean toolchain available. Verify with `lean` before relying on the proofs.
+Source material noted that some parts were written without a Lean toolchain available. Verify with `lean` before relying on the proofs.
 
 ## License
 
 AGPLv3 — see [LICENSE](LICENSE).
-
-## Related
-
-Mathematical background on bare-state amplitudes, nonequilibrium free energy, continuous measurement, and innovation processes is discussed in the accompanying notes.

@@ -242,11 +242,38 @@ theorem eps_exact_from_eigenvector (D E a b s β : F.R)
     (h2 : F.sub (F.mul (F.div D F.two) b) (F.mul s β) = F.mul E b)
     (ha : a ≠ F.zero) (hEd : F.sub E (F.div D F.two) ≠ F.zero) :
     F.div b a = eps_exact_of_energy F D E := by
-  -- The two eigenvector equations imply the cross relation
+  have add_neg_add_cancel : ∀ x y : F.R, F.add (F.add (F.neg x) y) x = y := by
+    intro x y
+    calc F.add (F.add (F.neg x) y) x
+        = F.add (F.add y (F.neg x)) x := by rw [F.add_comm (F.neg x) y]
+      _ = F.add y (F.add (F.neg x) x) := by rw [F.add_assoc]
+      _ = F.add y (F.add x (F.neg x)) := by rw [F.add_comm (F.neg x) x]
+      _ = F.add y F.zero := by rw [F.add_neg]
+      _ = y := add_zero F y
+  have add_add_neg_cancel : ∀ x y : F.R, F.add (F.add x y) (F.neg x) = y := by
+    intro x y
+    calc F.add (F.add x y) (F.neg x)
+        = F.add (F.add y x) (F.neg x) := by rw [F.add_comm x y]
+      _ = F.add y (F.add x (F.neg x)) := by rw [F.add_assoc]
+      _ = F.add y F.zero := by rw [F.add_neg]
+      _ = y := add_zero F y
   have h1' : F.mul (F.add E (F.div D F.two)) a = F.neg (F.mul s β) := by
-    sorry -- rearrangement of h1; pattern matching on add_neg is sensitive to term order
+    calc F.mul (F.add E (F.div D F.two)) a
+        = F.add (F.mul E a) (F.mul (F.div D F.two) a) := right_distrib F _ _ _
+      _ = F.add (F.sub (F.mul (F.neg (F.div D F.two)) a) (F.mul s β))
+                (F.mul (F.div D F.two) a) := by rw [h1]
+      _ = F.add (F.add (F.neg (F.mul (F.div D F.two) a)) (F.neg (F.mul s β)))
+                (F.mul (F.div D F.two) a) := by rw [F.sub_def, neg_mul_left]
+      _ = F.neg (F.mul s β) := add_neg_add_cancel _ _
   have h2' : F.mul (F.sub E (F.div D F.two)) b = F.neg (F.mul s β) := by
-    sorry -- rearrangement of h2
+    calc F.mul (F.sub E (F.div D F.two)) b
+        = F.add (F.mul E b) (F.neg (F.mul (F.div D F.two) b)) := by
+            rw [F.sub_def, right_distrib, neg_mul_left]
+      _ = F.add (F.sub (F.mul (F.div D F.two) b) (F.mul s β))
+                (F.neg (F.mul (F.div D F.two) b)) := by rw [h2]
+      _ = F.add (F.add (F.mul (F.div D F.two) b) (F.neg (F.mul s β)))
+                (F.neg (F.mul (F.div D F.two) b)) := by rw [F.sub_def]
+      _ = F.neg (F.mul s β) := add_add_neg_cancel _ _
   have hCross : F.mul (F.add E (F.div D F.two)) a = F.mul (F.sub E (F.div D F.two)) b := by
     rw [h1', h2']
   unfold eps_exact_of_energy
@@ -290,14 +317,82 @@ def eps_bounds (t U D : F.R) : F.R × F.R :=
   (lo, hi)
 
 /-- Custom lemma: `eps_bounds` is well-ordered (`lo ≤ hi`) whenever `0 < k < 1` and `U, D > 0`. -/
-theorem eps_lo_le_hi (t U D : F.R)
+theorem eps_lo_le_hi (F : RealField) (t U D : F.R)
     (hU : F.lt F.zero U) (hD : F.lt F.zero D)
     (hk0 : F.lt F.zero (kappa_onshell F t U D))
     (hk1 : F.lt (kappa_onshell F t U D) F.one) :
     F.le (eps_bounds F t U D).1 (eps_bounds F t U D).2 := by
-  sorry
+  unfold eps_bounds
+  dsimp only
+  let k := kappa_onshell F t U D
+  let m := F.div (F.mul k D) (F.sub F.one k)
+  have h1k_pos : F.lt F.zero (F.sub F.one k) := F.sub_pos_of_lt hk1
+  have h1k_ne : F.sub F.one k ≠ F.zero := pos_ne_zero F h1k_pos
+  have hm_pos : F.lt F.zero m := F.div_pos (F.mul_pos hk0 hD) h1k_pos
+  have hUd2_pos : F.lt F.zero (F.add U (F.div D F.two)) :=
+    F.add_pos hU (F.div_pos hD F.zero_lt_two)
+  have hDen_pos : F.lt F.zero (F.mul (F.add U (F.div D F.two)) D) :=
+    F.mul_pos hUd2_pos hD
+  have hDen_ne : F.mul (F.add U (F.div D F.two)) D ≠ F.zero := pos_ne_zero F hDen_pos
+  have hDm : F.add D m = F.div D (F.sub F.one k) := by
+    have hD_split : F.add D (F.div (F.mul k D) (F.sub F.one k))
+        = F.add (F.div (F.mul D (F.sub F.one k)) (F.sub F.one k))
+                (F.div (F.mul k D) (F.sub F.one k)) := by
+      congr 1
+      exact (F.div_cancel_mul D h1k_ne).symm
+    calc F.add D m
+        = F.add D (F.div (F.mul k D) (F.sub F.one k)) := rfl
+      _ = F.add (F.div (F.mul D (F.sub F.one k)) (F.sub F.one k))
+                (F.div (F.mul k D) (F.sub F.one k)) := hD_split
+      _ = F.div (F.add (F.mul D (F.sub F.one k)) (F.mul k D)) (F.sub F.one k) := by
+            rw [F.div_add_div_same]
+      _ = F.div D (F.sub F.one k) := by
+            congr 1
+            rw [F.sub_def, F.left_distrib, mul_one, mul_neg_right, F.add_assoc,
+                F.mul_comm k D, F.add_comm (F.neg (F.mul D k)) (F.mul D k), F.add_neg, add_zero]
+  have hDm_pos : F.lt F.zero (F.add D m) := by
+    rw [hDm]
+    exact F.div_pos hD h1k_pos
+  have hDen_le :
+      F.le (F.mul (F.add U (F.div D F.two)) (F.div D (F.sub F.one k)))
+           (F.mul (F.add (F.add U (F.div D F.two)) m) (F.add D m)) := by
+    rw [← hDm]
+    exact F.mul_le_mul_of_nonneg_right (F.add D m) (F.le_of_lt hDm_pos)
+      (le_add_of_nonneg_right F _ m (F.le_of_lt hm_pos))
+  have h2t2 : F.mul F.two (F.mul t t) = F.mul k (F.mul (F.add U (F.div D F.two)) D) :=
+    (F.div_mul_cancel (F.mul F.two (F.mul t t)) hDen_ne).symm
+  have hSub_pos : F.lt F.zero (F.mul (F.add U (F.div D F.two)) (F.div D (F.sub F.one k))) :=
+    F.mul_pos hUd2_pos (F.div_pos hD h1k_pos)
+  have hStep1 :
+      F.le (F.div (F.mul F.two (F.mul t t))
+                  (F.mul (F.add (F.add U (F.div D F.two)) m) (F.add D m)))
+           (F.mul k (F.sub F.one k)) := by
+    have hDiv := F.div_le_div_of_nonneg_left (F.mul F.two (F.mul t t))
+      (nonneg_mul_sq_two F t) hSub_pos hDen_le
+    have hEq :
+        F.div (F.mul F.two (F.mul t t))
+              (F.mul (F.add U (F.div D F.two)) (F.div D (F.sub F.one k)))
+        = F.mul k (F.sub F.one k) := by
+      rw [h2t2, F.mul_div_assoc (F.add U (F.div D F.two)) D (F.sub F.one k), F.div_div,
+          F.mul_assoc k (F.mul (F.add U (F.div D F.two)) D) (F.sub F.one k),
+          F.mul_comm (F.mul (F.add U (F.div D F.two)) D) (F.sub F.one k),
+          ← F.mul_assoc k (F.sub F.one k) (F.mul (F.add U (F.div D F.two)) D),
+          F.div_cancel_mul (F.mul k (F.sub F.one k)) hDen_ne]
+    rw [hEq] at hDiv
+    exact hDiv
+  have hStep2 : F.le (F.mul k (F.sub F.one k)) k := by
+    have h := F.mul_le_mul_of_nonneg_left k (F.le_of_lt hk0)
+      (sub_le_self_of_nonneg F F.one k (F.le_of_lt hk0))
+    rw [mul_one] at h
+    exact h
+  have hStep3 : F.le k (F.div k (F.sub F.one k)) := by
+    have h1k_le_1 : F.le (F.sub F.one k) F.one :=
+      sub_le_self_of_nonneg F F.one k (F.le_of_lt hk0)
+    have h := F.div_le_div_of_nonneg_left k (F.le_of_lt hk0) h1k_pos h1k_le_1
+    rw [F.div_one] at h
+    exact h
+  exact F.le_trans hStep1 (F.le_trans hStep2 hStep3)
 
-/-- Biological layer: `P_mut = factor * p_rare`. -/
 def lindblad_prob_factor (factor p_rare : F.R) : F.R :=
   F.mul factor p_rare
 
@@ -537,30 +632,22 @@ theorem innovation_step_eq (F : RealField) (gamma gamma_f Lt Lf dt dW : F.R) :
       F.add (F.mul (F.mul F.two (F.sub (F.mul (F.sqrt gamma) Lt) (F.mul (F.sqrt gamma_f) Lf))) dt)
             dW := by
   unfold innovation_step
-  set a := F.mul (F.sqrt gamma) Lt
-  set b := F.mul (F.sqrt gamma_f) Lf
-  have h1 : F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt) = F.mul (F.mul F.two a) dt := by
+  dsimp only
+  have h1 : F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt) =
+            F.mul (F.mul F.two (F.mul (F.sqrt gamma) Lt)) dt := by
     rw [F.mul_assoc F.two (F.sqrt gamma) (F.mul Lt dt),
-        ← F.mul_assoc (F.sqrt gamma) Lt dt, ← F.mul_assoc F.two a dt]
-  have h2 : F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt) = F.mul (F.mul F.two b) dt := by
+        ← F.mul_assoc (F.sqrt gamma) Lt dt,
+        ← F.mul_assoc F.two (F.mul (F.sqrt gamma) Lt) dt]
+  have h2 : F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt) =
+            F.mul (F.mul F.two (F.mul (F.sqrt gamma_f) Lf)) dt := by
     rw [F.mul_assoc F.two (F.sqrt gamma_f) (F.mul Lf dt),
-        ← F.mul_assoc (F.sqrt gamma_f) Lf dt, ← F.mul_assoc F.two b dt]
-  calc F.sub (F.add (F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt)) dW)
-             (F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt))
-      = F.sub (F.add (F.mul (F.mul F.two a) dt) dW) (F.mul (F.mul F.two b) dt) := by
-          rw [h1, h2]
-    _ = F.add (F.add (F.mul (F.mul F.two a) dt) dW) (F.neg (F.mul (F.mul F.two b) dt)) := by
-          rw [F.sub_def]
-    _ = F.add (F.add dW (F.mul (F.mul F.two a) dt)) (F.neg (F.mul (F.mul F.two b) dt)) := by
-          rw [F.add_comm (F.mul (F.mul F.two a) dt) dW]
-    _ = F.add dW (F.add (F.mul (F.mul F.two a) dt) (F.neg (F.mul (F.mul F.two b) dt))) := by
-          rw [F.add_assoc]
-    _ = F.add (F.add (F.mul (F.mul F.two a) dt) (F.neg (F.mul (F.mul F.two b) dt))) dW := by
-          rw [F.add_comm dW]
-    _ = F.add (F.mul (F.add (F.mul F.two a) (F.neg (F.mul F.two b))) dt) dW := by
-          rw [← neg_mul_left, ← right_distrib]
-    _ = F.add (F.mul (F.mul F.two (F.sub a b)) dt) dW := by
-          rw [← mul_neg_right, ← F.left_distrib, ← F.sub_def]
+        ← F.mul_assoc (F.sqrt gamma_f) Lf dt,
+        ← F.mul_assoc F.two (F.mul (F.sqrt gamma_f) Lf) dt]
+  rw [h1, h2, F.sub_def,
+      F.add_comm (F.mul (F.mul F.two (F.mul (F.sqrt gamma) Lt)) dt) dW,
+      F.add_assoc, F.add_comm dW]
+  congr 1
+  rw [← neg_mul_left, ← right_distrib, ← mul_neg_right, ← F.left_distrib, ← F.sub_def]
 
 theorem matched_filter_zero_drift (F : RealField) (gamma L dt dW : F.R) :
     innovation_step F gamma gamma L L dt dW = dW := by

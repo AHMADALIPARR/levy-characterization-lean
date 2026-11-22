@@ -242,7 +242,40 @@ theorem eps_exact_from_eigenvector (D E a b s β : F.R)
     (h2 : F.sub (F.mul (F.div D F.two) b) (F.mul s β) = F.mul E b)
     (ha : a ≠ F.zero) (hEd : F.sub E (F.div D F.two) ≠ F.zero) :
     F.div b a = eps_exact_of_energy F D E := by
-  sorry
+  have h1' : F.mul (F.add E (F.div D F.two)) a = F.neg (F.mul s β) := by
+    calc F.mul (F.add E (F.div D F.two)) a
+        = F.add (F.mul E a) (F.mul (F.div D F.two) a) := right_distrib F _ _ _
+      _ = F.add (F.sub (F.mul (F.neg (F.div D F.two)) a) (F.mul s β))
+                (F.mul (F.div D F.two) a) := by rw [h1]
+      _ = F.add (F.add (F.neg (F.mul (F.div D F.two) a)) (F.neg (F.mul s β)))
+                (F.mul (F.div D F.two) a) := by rw [F.sub_def, neg_mul_left]
+      _ = F.add (F.neg (F.mul s β))
+                (F.add (F.neg (F.mul (F.div D F.two) a)) (F.mul (F.div D F.two) a)) := by
+            rw [F.add_comm (F.neg (F.mul (F.div D F.two) a)) (F.neg (F.mul s β)), F.add_assoc]
+      _ = F.neg (F.mul s β) := by rw [F.add_comm (F.neg _) _, F.add_neg, add_zero]
+  have h2' : F.mul (F.sub E (F.div D F.two)) b = F.neg (F.mul s β) := by
+    calc F.mul (F.sub E (F.div D F.two)) b
+        = F.sub (F.mul E b) (F.mul (F.div D F.two) b) := by
+            rw [F.sub_def, right_distrib, neg_mul_left, F.sub_def]
+      _ = F.sub (F.sub (F.mul (F.div D F.two) b) (F.mul s β))
+                (F.mul (F.div D F.two) b) := by rw [h2]
+      _ = F.add (F.neg (F.mul s β))
+                (F.add (F.mul (F.div D F.two) b) (F.neg (F.mul (F.div D F.two) b))) := by
+            rw [F.sub_def, F.sub_def, F.add_comm (F.mul (F.div D F.two) b) (F.neg (F.mul s β)),
+                F.add_assoc]
+      _ = F.neg (F.mul s β) := by rw [F.add_neg, add_zero]
+  have hCross : F.mul (F.add E (F.div D F.two)) a = F.mul (F.sub E (F.div D F.two)) b := by
+    rw [h1', h2']
+  unfold eps_exact_of_energy
+  calc F.div b a
+      = F.div (F.mul b (F.sub E (F.div D F.two))) (F.mul a (F.sub E (F.div D F.two))) := by
+          rw [← F.div_div, F.div_cancel_mul a hEd]
+    _ = F.div (F.mul (F.sub E (F.div D F.two)) b) (F.mul a (F.sub E (F.div D F.two))) := by
+          rw [F.mul_comm b (F.sub E (F.div D F.two))]
+    _ = F.div (F.mul (F.add E (F.div D F.two)) a) (F.mul (F.sub E (F.div D F.two)) a) := by
+          rw [hCross, F.mul_comm a (F.sub E (F.div D F.two))]
+    _ = F.div (F.add E (F.div D F.two)) (F.sub E (F.div D F.two)) := by
+          rw [← F.div_div, F.div_cancel_mul (F.add E (F.div D F.two)) ha]
 
 /-- Paper's amplitude `kappa_paper = 2 t² / (U D)`. -/
 def kappa_paper (t U D : F.R) : F.R :=
@@ -406,7 +439,11 @@ def effective_h2 {F : RealField} (C : ComplexOver F) (t U D : F.R) : Mat2 C.C :=
 /-- Custom lemma: `effective_h2` is traceless (`Tr(H₂) = 0`). -/
 theorem effective_h2_trace_zero {F : RealField} (C : ComplexOver F) (t U D : F.R) :
     mat2Trace C (effective_h2 C t U D) = C.ofReal F.zero := by
-  sorry
+  unfold effective_h2 mat2Trace mat2Sub mat2Smul SZ SX
+  dsimp only
+  have hNeg0 : C.neg (C.ofReal F.zero) = C.ofReal F.zero := by
+    rw [← C.zero_add (C.neg (C.ofReal F.zero)), C.add_neg]
+  simp only [cMul_zero, C.sub_def, hNeg0, cAdd_zero, cMul_one, cMul_neg_right, C.add_neg]
 /-- Lindblad generator `L(ρ) = -i [H, ρ] + γ (Z ρ Z - ρ)`. -/
 def lindblad_rhs {F : RealField} (C : ComplexOver F)
     (H : Mat2 C.C) (gamma : F.R) (rho : Mat2 C.C) : Mat2 C.C :=
@@ -425,12 +462,49 @@ theorem dephasing_dissipator_matrix {F : RealField} (C : ComplexOver F) (rho : M
        C.neg (C.mul (C.ofReal F.two) rho.m01),
        C.neg (C.mul (C.ofReal F.two) rho.m10),
        C.ofReal F.zero⟩ := by
-  sorry
+  unfold mat2Sub mat2Mul SZ
+  dsimp only
+  have hSubNeg : ∀ x : C.C, C.sub (C.neg x) x = C.neg (C.mul (C.ofReal F.two) x) := by
+    intro x
+    rw [C.sub_def, F.two_def, C.ofReal_add,
+        C.mul_comm (C.add (C.ofReal F.one) (C.ofReal F.one)) x,
+        C.left_distrib, C.mul_comm x (C.ofReal F.one), C.one_mul, ← cNeg_add]
+  simp only [C.one_mul, C.zero_mul, C.zero_add, cAdd_zero, cNeg_one_mul,
+             cMul_one, cMul_zero, cMul_neg_right, cNeg_neg]
+  rw [cSub_self, cSub_self, hSubNeg, hSubNeg]
 /-- Custom lemma: the Lindblad generator is trace-preserving (`Tr(L(ρ)) = 0`). -/
 theorem lindblad_trace_zero {F : RealField} (C : ComplexOver F)
     (H : Mat2 C.C) (gamma : F.R) (rho : Mat2 C.C) :
     mat2Trace C (lindblad_rhs C H gamma rho) = C.ofReal F.zero := by
-  sorry
+  unfold lindblad_rhs
+  have hDiss :
+      mat2Trace C (mat2Sub C (mat2Mul C (mat2Mul C (SZ C) rho) (SZ C)) rho) = C.ofReal F.zero := by
+    rw [dephasing_dissipator_matrix]
+    unfold mat2Trace
+    dsimp only
+    exact C.zero_add _
+  have hAddSub : ∀ a0 b0 a1 b1 : C.C,
+      C.add (C.sub a0 b0) (C.sub a1 b1) = C.sub (C.add a0 a1) (C.add b0 b1) := by
+    intro a0 b0 a1 b1
+    rw [C.sub_def, C.sub_def, C.sub_def, cNeg_add, C.add_assoc,
+        ← C.add_assoc (C.neg b0) a1 (C.neg b1), C.add_comm (C.neg b0) a1,
+        C.add_assoc a1 (C.neg b0) (C.neg b1), ← C.add_assoc]
+  have hComm :
+      mat2Trace C (mat2Sub C (mat2Mul C H rho) (mat2Mul C rho H)) = C.ofReal F.zero := by
+    unfold mat2Trace mat2Sub
+    dsimp only
+    rw [hAddSub]
+    have hTr : mat2Trace C (mat2Mul C H rho) = mat2Trace C (mat2Mul C rho H) :=
+      mat2Trace_mul_comm C H rho
+    unfold mat2Trace at hTr
+    rw [hTr, cSub_self]
+  unfold mat2Trace mat2Add mat2Smul
+  dsimp only
+  have hSmulTrace : ∀ c (M : Mat2 C.C),
+      C.add (C.mul c M.m00) (C.mul c M.m11) = C.mul c (mat2Trace C M) := by
+    intro c M
+    exact (C.left_distrib c M.m00 M.m11).symm
+  rw [hSmulTrace, hComm, cMul_zero, C.zero_add, hSmulTrace, hDiss, cMul_zero]
 /-- One step of the homodyne SSE / filter innovation:
     `dY = 2 √γ Lt dt + dW`, `dW~ = dY - 2 √γ_f Lf dt`. -/
 def innovation_step (F : RealField) (gamma gamma_f Lt Lf dt dW : F.R) : F.R :=
@@ -442,7 +516,18 @@ theorem innovation_step_eq (F : RealField) (gamma gamma_f Lt Lf dt dW : F.R) :
     innovation_step F gamma gamma_f Lt Lf dt dW =
       F.add (F.mul (F.mul F.two (F.sub (F.mul (F.sqrt gamma) Lt) (F.mul (F.sqrt gamma_f) Lf))) dt)
             dW := by
-  sorry
+  unfold innovation_step
+  set a := F.mul (F.sqrt gamma) Lt
+  set b := F.mul (F.sqrt gamma_f) Lf
+  have h1 : F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt) = F.mul (F.mul F.two a) dt := by
+    rw [F.mul_assoc F.two (F.sqrt gamma) (F.mul Lt dt),
+        ← F.mul_assoc (F.sqrt gamma) Lt dt, ← F.mul_assoc F.two a dt]
+  have h2 : F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt) = F.mul (F.mul F.two b) dt := by
+    rw [F.mul_assoc F.two (F.sqrt gamma_f) (F.mul Lf dt),
+        ← F.mul_assoc (F.sqrt gamma_f) Lf dt, ← F.mul_assoc F.two b dt]
+  rw [h1, h2, F.sub_def, F.add_comm (F.mul (F.mul F.two a) dt) dW, F.add_assoc,
+      F.add_comm dW, ← neg_mul_left, ← right_distrib, ← mul_neg_right,
+      ← F.left_distrib, ← F.sub_def]
 /-- Custom lemma: when `γ_f = γ` and `Lf = Lt`, the drift cancels and `dW~ = dW`. -/
 theorem matched_filter_zero_drift (F : RealField) (gamma L dt dW : F.R) :
     innovation_step F gamma gamma L L dt dW = dW := by

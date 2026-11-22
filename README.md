@@ -2,6 +2,29 @@
 
 # Bray-Ali Four-State Proton Model
 
+```
+  B R A Y - A L I  .  F O U R   P R O T O N   S T A T E S
+  ------------------------------------------------------------------
+           %               E
+      oC=-=-=-=GO          ^
+   oC=-=-=-=-=-=-=GO       |   U   ====================  |G+C-> |G-C+>
+   OG=-=-=-=-=-=-=Co       |           |          |
+      OG=-=-=-=Co          |           |          t
+           %               |           t          |
+       oC=-=-=GO           | +D/2      |      =========  |G*C*> rare
+    oG=-=-=-=-=-=CO        |           |
+   OG=-=-=-=-=-=-=Co       |           |  no direct GC <-> G*C*
+      OC=-=-=-=Go          | -D/2  =========             |GC> ordinary
+          O o              +-------------------------------------------
+       oG=-=-=CO
+    oG=-=-=-=-=-=CO
+   OC=-=-=-=-=-=-=Go
+      OC=-=-=-=Go
+
+  p_rare ~ ( 2 t^2 / ((U + D/2) D) )^2   exact ground state, bare basis
+  no physical claim: the mathematics of a published model, machine-checked
+```
+
 A pure Lean 4 formalization of the linear algebra in N. Bray-Ali, *Spontaneous Mutations from Terahertz Proton Tunneling* (arXiv:2305.05624, v4), together with independent numerical and bit-blasted restatements of the same mathematics in Wolfram, R, Racket, ACL2, and C.
 
 The repository makes no new physical or biological claim. It restates the published four-state Hamiltonian, its reduction to an effective two-level system, the associated rare-state probability bounds, and the Lévy-characterization diagnostics of the innovation process that appears in the stochastic filtering layer. Every statement is labeled by the evidence that supports it: a Lean proof, a numerical check that can be executed, or an interface axiom.

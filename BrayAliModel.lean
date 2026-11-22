@@ -258,7 +258,7 @@ theorem eps_exact_from_eigenvector (D E a b s β : F.R)
     _ = F.div (F.mul (F.add E (F.div D F.two)) a) (F.mul (F.sub E (F.div D F.two)) a) := by
           rw [hCross, F.mul_comm a (F.sub E (F.div D F.two))]
     _ = F.div (F.add E (F.div D F.two)) (F.sub E (F.div D F.two)) := by
-          sorry
+          rw [← F.div_div, F.div_cancel_mul (F.sub E (F.div D F.two)) ha]
 
 def kappa_paper (t U D : F.R) : F.R :=
   F.div (F.mul F.two (F.mul t t)) (F.mul U D)
@@ -374,7 +374,20 @@ theorem cNeg_neg (x : C.C) : C.neg (C.neg x) = x := by
     _ = x := C.zero_add x
 
 theorem cNeg_add (x y : C.C) : C.neg (C.add x y) = C.add (C.neg x) (C.neg y) := by
-  sorry
+  have h0 : C.add (C.add (C.neg x) (C.neg y)) (C.add x y) = C.ofReal F.zero := by
+    calc C.add (C.add (C.neg x) (C.neg y)) (C.add x y)
+        = C.add (C.neg x) (C.add (C.neg y) (C.add x y)) := by rw [C.add_assoc]
+      _ = C.add (C.neg x) (C.add (C.add x y) (C.neg y)) := by rw [C.add_comm (C.neg y) (C.add x y)]
+      _ = C.add (C.neg x) (C.add x (C.add y (C.neg y))) := by rw [C.add_assoc x y (C.neg y)]
+      _ = C.add (C.neg x) (C.add x (C.ofReal F.zero)) := by rw [C.add_neg]
+      _ = C.add (C.neg x) x := by rw [cAdd_zero]
+      _ = C.ofReal F.zero := by rw [C.add_comm, C.add_neg]
+  calc C.neg (C.add x y)
+      = C.add (C.ofReal F.zero) (C.neg (C.add x y)) := (C.zero_add _).symm
+    _ = C.add (C.add (C.add (C.neg x) (C.neg y)) (C.add x y)) (C.neg (C.add x y)) := by rw [h0]
+    _ = C.add (C.add (C.neg x) (C.neg y)) (C.add (C.add x y) (C.neg (C.add x y))) := by
+          rw [C.add_assoc]
+    _ = C.add (C.neg x) (C.neg y) := by rw [C.add_neg, cAdd_zero]
 end ComplexLemmas
 
 /-- 2x2 complex matrices for `SZ`, `SX`, `I2`, `effective_h2`, and `rho`. -/
@@ -436,7 +449,26 @@ def lindblad_rhs {F : RealField} (C : ComplexOver F)
 /-- Custom lemma: `Tr(A B) = Tr(B A)` for 2x2 matrices. -/
 theorem mat2Trace_mul_comm {F : RealField} (C : ComplexOver F) (A B : Mat2 C.C) :
     mat2Trace C (mat2Mul C A B) = mat2Trace C (mat2Mul C B A) := by
-  sorry
+  unfold mat2Trace mat2Mul
+  dsimp only
+  calc C.add (C.add (C.mul A.m00 B.m00) (C.mul A.m01 B.m10))
+             (C.add (C.mul A.m10 B.m01) (C.mul A.m11 B.m11))
+      = C.add (C.add (C.mul B.m00 A.m00) (C.mul B.m10 A.m01))
+              (C.add (C.mul B.m01 A.m10) (C.mul B.m11 A.m11)) := by
+          rw [C.mul_comm A.m00 B.m00, C.mul_comm A.m01 B.m10,
+              C.mul_comm A.m10 B.m01, C.mul_comm A.m11 B.m11]
+    _ = C.add (C.mul B.m00 A.m00)
+              (C.add (C.mul B.m10 A.m01) (C.add (C.mul B.m01 A.m10) (C.mul B.m11 A.m11))) := by
+          rw [C.add_assoc]
+    _ = C.add (C.mul B.m00 A.m00)
+              (C.add (C.mul B.m01 A.m10) (C.add (C.mul B.m10 A.m01) (C.mul B.m11 A.m11))) := by
+          congr 1
+          rw [← C.add_assoc (C.mul B.m10 A.m01),
+              C.add_comm (C.mul B.m10 A.m01) (C.mul B.m01 A.m10),
+              C.add_assoc]
+    _ = C.add (C.add (C.mul B.m00 A.m00) (C.mul B.m01 A.m10))
+              (C.add (C.mul B.m10 A.m01) (C.mul B.m11 A.m11)) := by
+          rw [← C.add_assoc]
 /-- Custom lemma: pure dephasing dissipator `Z ρ Z - ρ` has zero diagonal and `-2 ρ₀₁, -2 ρ₁₀` off-diagonal. -/
 theorem dephasing_dissipator_matrix {F : RealField} (C : ComplexOver F) (rho : Mat2 C.C) :
     mat2Sub C (mat2Mul C (mat2Mul C (SZ C) rho) (SZ C)) rho =
@@ -480,15 +512,21 @@ theorem lindblad_trace_zero {F : RealField} (C : ComplexOver F)
       mat2Trace_mul_comm C H rho
     unfold mat2Trace at hTr
     rw [hTr, cSub_self]
-  unfold mat2Trace mat2Add mat2Smul
-  dsimp only
+  have hTraceAdd : ∀ A B : Mat2 C.C,
+      mat2Trace C (mat2Add C A B) = C.add (mat2Trace C A) (mat2Trace C B) := by
+    intro A B
+    unfold mat2Trace mat2Add
+    dsimp only
+    rw [C.add_assoc, ← C.add_assoc B.m00 A.m11 B.m11, C.add_comm B.m00 A.m11,
+        C.add_assoc A.m11 B.m00 B.m11, ← C.add_assoc]
   have hSmulTrace : ∀ c (M : Mat2 C.C),
-      C.add (C.mul c M.m00) (C.mul c M.m11) = C.mul c (mat2Trace C M) := by
+      mat2Trace C (mat2Smul C c M) = C.mul c (mat2Trace C M) := by
     intro c M
+    unfold mat2Trace mat2Smul
+    dsimp only
     exact (C.left_distrib c M.m00 M.m11).symm
-  rw [hSmulTrace, hComm, cMul_zero, C.zero_add, hSmulTrace, hDiss, cMul_zero]
-/-- One step of the homodyne SSE / filter innovation:
-    `dY = 2 √γ Lt dt + dW`, `dW~ = dY - 2 √γ_f Lf dt`. -/
+  rw [hTraceAdd, hSmulTrace, hSmulTrace, hComm, hDiss, cMul_zero, cMul_zero, C.zero_add]
+
 def innovation_step (F : RealField) (gamma gamma_f Lt Lf dt dW : F.R) : F.R :=
   let dY := F.add (F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt)) dW
   F.sub dY (F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt))
@@ -507,10 +545,23 @@ theorem innovation_step_eq (F : RealField) (gamma gamma_f Lt Lf dt dW : F.R) :
   have h2 : F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt) = F.mul (F.mul F.two b) dt := by
     rw [F.mul_assoc F.two (F.sqrt gamma_f) (F.mul Lf dt),
         ← F.mul_assoc (F.sqrt gamma_f) Lf dt, ← F.mul_assoc F.two b dt]
-  rw [h1, h2, F.sub_def, F.add_comm (F.mul (F.mul F.two a) dt) dW, F.add_assoc,
-      F.add_comm dW, ← neg_mul_left, ← right_distrib, ← mul_neg_right,
-      ← F.left_distrib, ← F.sub_def]
-/-- Custom lemma: when `γ_f = γ` and `Lf = Lt`, the drift cancels and `dW~ = dW`. -/
+  calc F.sub (F.add (F.mul (F.mul F.two (F.sqrt gamma)) (F.mul Lt dt)) dW)
+             (F.mul (F.mul F.two (F.sqrt gamma_f)) (F.mul Lf dt))
+      = F.sub (F.add (F.mul (F.mul F.two a) dt) dW) (F.mul (F.mul F.two b) dt) := by
+          rw [h1, h2]
+    _ = F.add (F.add (F.mul (F.mul F.two a) dt) dW) (F.neg (F.mul (F.mul F.two b) dt)) := by
+          rw [F.sub_def]
+    _ = F.add (F.add dW (F.mul (F.mul F.two a) dt)) (F.neg (F.mul (F.mul F.two b) dt)) := by
+          rw [F.add_comm (F.mul (F.mul F.two a) dt) dW]
+    _ = F.add dW (F.add (F.mul (F.mul F.two a) dt) (F.neg (F.mul (F.mul F.two b) dt))) := by
+          rw [F.add_assoc]
+    _ = F.add (F.add (F.mul (F.mul F.two a) dt) (F.neg (F.mul (F.mul F.two b) dt))) dW := by
+          rw [F.add_comm dW]
+    _ = F.add (F.mul (F.add (F.mul F.two a) (F.neg (F.mul F.two b))) dt) dW := by
+          rw [← neg_mul_left, ← right_distrib]
+    _ = F.add (F.mul (F.mul F.two (F.sub a b)) dt) dW := by
+          rw [← mul_neg_right, ← F.left_distrib, ← F.sub_def]
+
 theorem matched_filter_zero_drift (F : RealField) (gamma L dt dW : F.R) :
     innovation_step F gamma gamma L L dt dW = dW := by
   rw [innovation_step_eq, sub_self, mul_zero, F.zero_mul, F.zero_add]

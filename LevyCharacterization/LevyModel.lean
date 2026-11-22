@@ -1,3 +1,5 @@
+/- SPDX-License-Identifier: AGPL-3.0-only -/
+
 /- Extracted pure Lean 4 formalization of Lévy's characterization and quantum filtering innovation.
    Zero external dependencies. Pure Lean 4 core.
 -/

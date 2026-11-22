@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+
 # Lévy Characterization & Bray-Ali Model (Lean 4)
 
 Pure Lean 4 formalizations (zero external dependencies).

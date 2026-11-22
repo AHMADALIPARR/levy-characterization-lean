@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # Levy-characterization diagnostics on innovation records written by export_csv.py.
 # Run:  Rscript levy_diagnostics.R        (from the brayali/ directory)
 # NOTE: written without an R interpreter available; the Python module computes the same

@@ -1,3 +1,5 @@
+/- SPDX-License-Identifier: AGPL-3.0-only -/
+
 /-
   R-style diagnostic kernels for Lévy characterization checks
   Pure Lean 4 (no Mathlib). Mirrors the statistics computed by

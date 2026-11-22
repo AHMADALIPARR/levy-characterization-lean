@@ -1,3 +1,5 @@
+/- SPDX-License-Identifier: AGPL-3.0-only -/
+
 /-
   Bray-Ali Four-Proton-State Model & Dephasing/Filtering Diagnostics
   Pure Lean 4 (no dependencies, pure Lean 4 core)

@@ -351,6 +351,17 @@ The Lean build is the primary verification step. It succeeds on a clean checkout
 ### GF(2⁸)
 `gfXtime`, `gfMulLoop`, `gfMul`, `gfInv`, `aesAffine`, `aesSbox`.
 
+
+## Hardware RTL (combinational)
+
+The same GF(2⁸) multiply and AES S-Box appear as pure combinational Verilog in `rtl/`.
+
+- `rtl/gf256_mul.v` — 8-stage unrolled xtime chain. Each stage is a left shift XORed with `8'h1b` when the high bit is set, followed by a conditional accumulation of the partial product. Zero flip-flops.
+- `rtl/gf256_sq.v` — squaring is linear in characteristic 2; a single layer of XOR gates computes \(a^2 mod (x^8+x^4+x^3+x+1)\).
+- `rtl/aes_sbox.v` — inversion via Fermat’s Little Theorem (\(a^{254}\)) using an Itoh–Tsujii addition chain (7 squarings + 4 multiplications), then the standard AES affine transform (four cyclic rotations XORed with `0x63`). The map sends 0 to 0 automatically.
+
+These modules are a direct structural counterpart of the shift-and-XOR loop used in the Lean, ACL2, Racket, and C implementations. They produce the same S-Box table shown above.
+
 ## AES S-Box (reference)
 
 The implementations in `AesGF256.lean`, `acl2/parr-aes.lisp`, `racket/parr-math.rkt`, and `ParrMath/Native/gf256.c` produce the following table (FIPS-197).

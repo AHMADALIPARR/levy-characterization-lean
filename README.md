@@ -2,6 +2,30 @@
 
 # Bray-Ali Four-State Proton Model
 
+```text
+ E
+  |
+  |   U   ====================   |G+C->  |G-C+>   dark
+  |
+  |               |
+  |               t
+  |   +D/2   ---- t ----   |B>   symmetric charged
+  |               |
+  |                                       |G*C*> rare
+  |               t
+  |   0
+  |
+  |
+  |
+  |   -D/2  ================   |GC> ordinary
+  |
+  |          no direct GC <-> G*C*
+  |
+  |
+    p_rare ~ (2 t^2 / ((U + D/2) D))^2
+    no physical claim: mathematics of a published model
+```
+
 ```
   B R A Y - A L I  .  F O U R   P R O T O N   S T A T E S
   ------------------------------------------------------------------

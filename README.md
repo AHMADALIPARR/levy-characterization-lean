@@ -5,11 +5,11 @@
 A pure Lean 4 formalization of the mathematical core of N. Bray-Ali,
 *Spontaneous Mutations from Terahertz Proton Tunneling*
 (arXiv:2305.05624, v4). Parameter values changed between versions of the paper
-(v1 used \(\Delta = 0.1\) eV, \(U = 5\) eV); this repository pins the v4 values
-(\(U = 870\) meV, \(\Delta = 470\) meV) wherever a concrete number is quoted.
+(v1 used $\Delta = 0.1$ eV, $U = 5$ eV); this repository pins the v4 values
+($U = 870$ meV, $\Delta = 470$ meV) wherever a concrete number is quoted.
 
 This repository makes no new physical or biological claim. It restates a published
-model's linear algebra in a proof assistant, replaces "\(\approx\)" with explicit
+model's linear algebra in a proof assistant, replaces "$\approx$" with explicit
 inequalities where it can, and records which statements are machine-checked, which
 are only numerically checked, and which are neither. Almost nothing outside the
 source paper has been written on this model, so the aim is a precise, checkable
@@ -37,145 +37,163 @@ untested unless you run them.
 
 A guanine–cytosine base pair is reduced to four proton configurations. In the
 ordered basis
-\(|GC\rangle,\ |G^*C^*\rangle,\ |G^+C^-\rangle,\ |G^-C^+\rangle\)
+$|GC\rangle,\ |G^*C^*\rangle,\ |G^+C^-\rangle,\ |G^-C^+\rangle$
 the Hamiltonian is
 
-\[
+
+$$
 H=\begin{pmatrix}
 -\Delta/2 & 0 & -t & -t\\
 0 & +\Delta/2 & -t & -t\\
 -t & -t & U & 0\\
 -t & -t & 0 & U
 \end{pmatrix},\qquad t,\Delta,U>0.
-\]
+$$
 
-\(\Delta\) is the ordinary/rare tautomer gap, \(t\) the single-proton tunnelling
-amplitude, and \(U\) the energy of the charged intermediates. There is no direct
+
+$\Delta$ is the ordinary/rare tautomer gap, $t$ the single-proton tunnelling
+amplitude, and $U$ the energy of the charged intermediates. There is no direct
 coupling between the two neutral configurations; they communicate only through
 the charged ones.
 
 ### Reduction to three levels
 
 Let
-\[
+
+$$
 |B\rangle=\frac{|G^+C^-\rangle+|G^-C^+\rangle}{\sqrt{2}},\qquad
 |D\rangle=\frac{|G^+C^-\rangle-|G^-C^+\rangle}{\sqrt{2}}.
-\]
-Then \(H|D\rangle=U|D\rangle\) (the two couplings cancel), so the dark state
-decouples and the problem lives on the bright subspace
-\(\{|GC\rangle,|G^*C^*\rangle,|B\rangle\}\):
+$$
 
-\[
+Then $H|D\rangle=U|D\rangle$ (the two couplings cancel), so the dark state
+decouples and the problem lives on the bright subspace
+$\{|GC\rangle,|G^*C^*\rangle,|B\rangle\}$:
+
+
+$$
 H_3=\begin{pmatrix}
 -\Delta/2 & 0 & -s\\
 0 & \Delta/2 & -s\\
 -s & -s & U
 \end{pmatrix},\qquad s=\sqrt{2}\,t.
-\]
+$$
+
 
 This reduction is formalized in `LevyCharacterization/BrayAliModel.lean`
 (`ham4_dark_eigenvector` and the definition of `ham3`). Status: Lean-verified
 (structure and dark-eigenvector identity); the numerical agreement of the
-rare-state probability between the 4×4 and 3×3 problems to \(10^{-12}\) is
+rare-state probability between the 4×4 and 3×3 problems to $10^{-12}$ is
 checked in the Python reference (not shipped in this repository).
 
 ### Exact eigen-equations
 
-For an eigenvector \((a,b,\beta)\) with eigenvalue \(E\):
+For an eigenvector $(a,b,\beta)$ with eigenvalue $E$:
 
-\[
+
+$$
 -\tfrac{\Delta}{2}a-s\beta=Ea,\qquad
 \tfrac{\Delta}{2}b-s\beta=Eb,\qquad
 -sa-sb+U\beta=E\beta.
-\]
+$$
 
-Eliminating \(\beta\) yields two exact consequences, with no perturbation theory:
 
-\[
+Eliminating $\beta$ yields two exact consequences, with no perturbation theory:
+
+
+$$
 \frac{b}{a}=\frac{E+\Delta/2}{E-\Delta/2},\qquad
 (E-U)\Bigl(E^2-\tfrac{\Delta^2}{4}\Bigr)=4t^2E
-\]
-(for \(E\neq\pm\Delta/2\)). The ground level satisfies \(E<-\Delta/2\) strictly:
-the Rayleigh quotient of \(|GC\rangle\) equals \(-\Delta/2\), and \(|GC\rangle\)
-is not an eigenvector when \(s>0\). Writing
-\(x=-(E+\Delta/2)>0\), \(c=U+\Delta/2\), \(w=2t^2\),
+$$
 
-\[
+(for $E\neq\pm\Delta/2$). The ground level satisfies $E<-\Delta/2$ strictly:
+the Rayleigh quotient of $|GC\rangle$ equals $-\Delta/2$, and $|GC\rangle$
+is not an eigenvector when $s>0$. Writing
+$x=-(E+\Delta/2)>0$, $c=U+\Delta/2$, $w=2t^2$,
+
+
+$$
 x(c+x)(\Delta+x)=w(\Delta+2x),\qquad
 \varepsilon:=\frac{b}{a}=\frac{x}{\Delta+x},\qquad
 p_{\rm rare}=\frac{b^2}{a^2+b^2+\beta^2}=\frac{\varepsilon^2}{1+\varepsilon^2+x^2/w}.
-\]
+$$
+
 
 The ratio identity is `eps_exact_from_eigenvector` in `BrayAliModel.lean`
-(Lean-verified under the non-degeneracy hypotheses \(a\neq0\) and
-\(E\neq\Delta/2\)). The secular cubic and the strict inequality
-\(E<-\Delta/2\) are derived by hand in the accompanying notes and checked
+(Lean-verified under the non-degeneracy hypotheses $a\neq0$ and
+$E\neq\Delta/2$). The secular cubic and the strict inequality
+$E<-\Delta/2$ are derived by hand in the accompanying notes and checked
 numerically; they are not yet closed Lean theorems in the pure-core
 development.
 
 ### Two-sided bounds
 
 With
-\[
+
+$$
 \kappa=\frac{2t^2}{(U+\Delta/2)\Delta}<1,\qquad
 m=\frac{\kappa\Delta}{1-\kappa},
-\]
+$$
+
 the amplitude satisfies
 
-\[
+
+$$
 \frac{2t^2}{(c+m)(\Delta+m)}\ \le\ \varepsilon\ \le\ \frac{\kappa}{1-\kappa}.
-\]
+$$
+
 
 The upper bound is `eps_lo_le_hi` / the on-shell comparison in
-`BrayAliModel.lean` (Lean-verified for the ordering \(\mathrm{lo}\le\mathrm{hi}\)).
+`BrayAliModel.lean` (Lean-verified for the ordering $\mathrm{lo}\le\mathrm{hi}$).
 The full polynomial chain
-(\(x(c+x)(\Delta+x)=w(\Delta+2x)\), the key inequality
-\(w\le x(c+\Delta+x)\), hence \(x\le m\), hence the two-sided bound on
-\(\varepsilon\)) is recorded as a design target; the three polynomial claims
+($x(c+x)(\Delta+x)=w(\Delta+2x)$, the key inequality
+$w\le x(c+\Delta+x)$, hence $x\le m$, hence the two-sided bound on
+$\varepsilon$) is recorded as a design target; the three polynomial claims
 were checked on 30 000 random points in an external Python script with zero
 violations (numerically checked). The lower-bound claim remains the most
 delicate and is not yet a closed Lean proof in the pure-core files.
 
 ## 2. Where the formalization had to make a choice
 
-The source paper's central amplitude is \(\varepsilon\approx J/\Delta\) with
-\(J=2t^2/U\). Three different second-order expressions appear, and they are
-not interchangeable at the paper's parameters (\(U=870\) meV, \(\Delta=470\) meV):
+The source paper's central amplitude is $\varepsilon\approx J/\Delta$ with
+$J=2t^2/U$. Three different second-order expressions appear, and they are
+not interchangeable at the paper's parameters ($U=870$ meV, $\Delta=470$ meV):
 
 | quantity | expression | what it is |
 |---|---|---|
-| paper | \(2t^2/(U\Delta)\) | both energy denominators set to \(U\) |
-| symmetric effective coupling | \(t^2\bigl[\frac1{U+\Delta/2}+\frac1{U-\Delta/2}\bigr]/\Delta\) | off-diagonal of a second-order effective Hamiltonian |
-| ground-state amplitude (exact leading term) | \(2t^2/((U+\Delta/2)\Delta)\) | on-shell denominator \(U-E_0\), evaluated in the bare basis |
+| paper | $2t^2/(U\Delta)$ | both energy denominators set to $U$ |
+| symmetric effective coupling | $t^2\bigl[\frac1{U+\Delta/2}+\frac1{U-\Delta/2}\bigr]/\Delta$ | off-diagonal of a second-order effective Hamiltonian |
+| ground-state amplitude (exact leading term) | $2t^2/((U+\Delta/2)\Delta)$ | on-shell denominator $U-E_0$, evaluated in the bare basis |
 
 The sudden-separation step projects the ground state onto bare configurations,
 so the bare-basis amplitude is the quantity the argument uses. Numerically, at
-\(t=0.48\,\mathrm{THz}\cdot h\approx 1.985\) meV,
-\[
+$t=0.48\,\mathrm{THz}\cdot h\approx 1.985$ meV,
+
+$$
 \frac{p_{\rm rare}^{\rm exact}}{(2t^2/U\Delta)^2}=0.620,
-\]
-which matches \((U/(U+\Delta/2))^2\), as the leading-order analysis predicts.
-Applying the paper's own factor \(1/2\) gives \(P=1.15\times10^{-10}\) (exact)
-against \(1.86\times10^{-10}\) (paper's formula; the paper quotes
-\(2.0\times10^{-10}\)). This is a statement about the closed four-state
-Hamiltonian only. It is not a statement about real DNA. The factor \(1/2\) and
+$$
+
+which matches $(U/(U+\Delta/2))^2$, as the leading-order analysis predicts.
+Applying the paper's own factor $1/2$ gives $P=1.15\times10^{-10}$ (exact)
+against $1.86\times10^{-10}$ (paper's formula; the paper quotes
+$2.0\times10^{-10}$). This is a statement about the closed four-state
+Hamiltonian only. It is not a statement about real DNA. The factor $1/2$ and
 the sudden approximation are taken from the paper unexamined.
 
 ## 3. Verification status
 
 | statement | Lean | numerical |
 |---|---|---|
-| dark state decouples; \(4\times4\to3\times3\) | Lean-verified (`ham4_dark_eigenvector`) | external Python, \(10^{-12}\) |
-| \(b/a=(E+\Delta/2)/(E-\Delta/2)\) | Lean-verified (`eps_exact_from_eigenvector`) | external Python |
-| secular cubic | derived by hand | external Python, relative \(10^{-8}\) |
-| ground level \(<-\Delta/2\) | derived by hand | external Python |
-| \(\varepsilon\) upper / lower ordering | Lean-verified (`eps_lo_le_hi`) | external Python |
-| \(p_{\rm rare}\) formula | derived by hand | external Python |
+| dark state decouples; $4\times4\to3\times3$ | Lean-verified (`ham4_dark_eigenvector`) | external Python, $10^{-12}$ |
+| $b/a=(E+\Delta/2)/(E-\Delta/2)$ | Lean-verified (`eps_exact_from_eigenvector`) | external Python |
+| secular cubic | derived by hand | external Python, relative $10^{-8}$ |
+| ground level $<-\Delta/2$ | derived by hand | external Python |
+| $\varepsilon$ upper / lower ordering | Lean-verified (`eps_lo_le_hi`) | external Python |
+| $p_{\rm rare}$ formula | derived by hand | external Python |
 | polynomial claims (30 000 points) | open | external Python, 0 violations |
 
-Not formalized, and not claimed: the sudden approximation, the factor \(1/2\),
+Not formalized, and not claimed: the sudden approximation, the factor $1/2$,
 any link between a rare tautomer and a heritable mutation, decoherence, and
-the paper's Schrieffer–Wolff transformation (its stated matrix \(V\) and signs
+the paper's Schrieffer–Wolff transformation (its stated matrix $V$ and signs
 have not been independently verified here).
 
 ## 4. Design rationale
@@ -187,7 +205,7 @@ The following choices are recorded in the development notes:
    eigenproblem gives directly.
 2. Dark-state reduction: turns a 4×4 problem into a 3×3 one with a closed-form
    secular cubic.
-3. Parametrization by \(x=-(E+\Delta/2)\): every inequality becomes polynomial
+3. Parametrization by $x=-(E+\Delta/2)$: every inequality becomes polynomial
    with positive terms.
 4. Pure Lean 4 core (no Mathlib): keeps the dependency surface minimal and
    the axioms explicit.
@@ -198,7 +216,7 @@ The following choices are recorded in the development notes:
 7. Scope restriction: no formalization of the biological layer.
 
 What the project deliberately did not do: prove the sudden approximation,
-justify the factor \(1/2\), or claim that a rare tautomer implies a mutation.
+justify the factor $1/2$, or claim that a rare tautomer implies a mutation.
 
 ## 5. Extensions (sketched, not claimed)
 
@@ -244,39 +262,43 @@ commit hash. License: AGPLv3 (see `LICENSE` and the SPDX headers).
 
 ## Open questions for the repository owner
 
-1. Should the secular cubic and the strict inequality \(E<-\Delta/2\) be
+1. Should the secular cubic and the strict inequality $E<-\Delta/2$ be
    promoted to closed Lean theorems in the pure-core style, or left as
    numerically-checked remarks?
 2. Is the interpretation that the symmetric effective coupling lives in a
    rotated basis (while the sudden step projects onto bare configurations)
    to be treated as a derived-by-hand remark only, or is a formal statement
    desired?
-3. The biological factor \(1/2\) and the sudden approximation are taken from
+3. The biological factor $1/2$ and the sudden approximation are taken from
    the paper unexamined. Confirm that this remains the intended scope.
 
 ## 9. Filtering and innovation diagnostics
 
 The repository also contains an interface for continuous-measurement records.
 In the homodyne setting the observation process satisfies
-\[
+
+$$
 \mathrm{d}Y_t=2\sqrt{\eta\kappa}\langle A\rangle_t^Y\,\mathrm{d}t+\mathrm{d}W_t,
-\]
+$$
+
 and the innovation
-\[
+
+$$
 W_t=Y_t-\int_0^t\hat h_u\,\mathrm{d}u
-\]
+$$
+
 is, under the standard hypotheses, a Brownian motion by Lévy's characterization
 (continuous local martingale with unit quadratic variation). The Lean interface
 is in `LevyModel.lean`. Several of the characteristic-function and
 characterization statements are currently axioms rather than closed proofs;
 this is recorded so that the dependency graph remains explicit. The companion
 R script computes, for each path ensemble, the realized quadratic variation,
-four \(z\)-scores (mean of \(W_T\), second moment, martingale transform against
-the filter, and the \(W^2-t\) transform), the increment kurtosis, and a
-Kolmogorov–Smirnov comparison against \(\mathcal N(0,1)\). These diagnostics
+four $z$-scores (mean of $W_T$, second moment, martingale transform against
+the filter, and the $W^2-t$ transform), the increment kurtosis, and a
+Kolmogorov–Smirnov comparison against $\mathcal N(0,1)$. These diagnostics
 are the operational counterpart of the two hypotheses in Lévy's theorem:
 quadratic variation alone is blind to a drift, while the martingale-transform
-\(z\)-score detects it. The Wolfram file `mathematica/brayali.wl` implements
+$z$-score detects it. The Wolfram file `mathematica/brayali.wl` implements
 the same statistics. Neither the R nor the Wolfram script has been executed
 against a live kernel in the preparation of this repository; any numerical
 claim that relies on them must be re-run by the reader.
@@ -304,12 +326,12 @@ in that state.
   `LevyCharacterization.BrayAliModel` and `LevyCharacterization.LevyModel`.
 - No `sorry` appears in any `.lean` file (enforced by the development
   process that produced the current tree).
-- Numerical tables that quote \(0.620\), \(1.15\times10^{-10}\), or
-  \(1.86\times10^{-10}\) originate from an external Python reference that
+- Numerical tables that quote $0.620$, $1.15\times10^{-10}$, or
+  $1.86\times10^{-10}$ originate from an external Python reference that
   diagonalizes the 3×3 matrix at the v4 parameters; they are not recomputed
   by the Lean code. A reader who wishes to regenerate them should implement
-  the same diagonalization (NumPy `eigh` on `H_3` with \(t=0.48\times h\),
-  \(h=4.135667696\) meV/THz, \(U=870\), \(\Delta=470\)) and compare.
+  the same diagonalization (NumPy `eigh` on `H_3` with $t=0.48\times h$,
+  $h=4.135667696$ meV/THz, $U=870$, $\Delta=470$) and compare.
 
 ## 12. Limitations
 
@@ -317,17 +339,17 @@ The formalization covers the closed-system linear algebra of the four-state
 model and an interface for the filtering diagnostics. It does not cover:
 thermalization, the sudden approximation, the biological conversion factor,
 or any claim about mutation rates in living systems. The polynomial lower
-bound on \(\varepsilon\) is numerically supported but not yet a closed Lean
+bound on $\varepsilon$ is numerically supported but not yet a closed Lean
 proof. The R and Wolfram diagnostic scripts are untested in this tree. Any
 extension that adds Mathlib, or that re-introduces `sorry`, should update
 the evidence-level labels in this document accordingly.
 
 ## 13. ACL2 verification of the Galois field (ParrMath)
 
-The file `acl2/parr-aes.lisp` is a direct port of the ParrMath `GFMultiply` (8-round shift-and-XOR with reduction by `#x11B`) together with the Fermat inversion \(a^{254}\) and the AES affine transform. It uses `centaur/gl` bit-blasting to prove, over all \(2^8\) inputs:
+The file `acl2/parr-aes.lisp` is a direct port of the ParrMath `GFMultiply` (8-round shift-and-XOR with reduction by `#x11B`) together with the Fermat inversion $a^{254}$ and the AES affine transform. It uses `centaur/gl` bit-blasting to prove, over all $2^8$ inputs:
 
 - commutativity and associativity of `gf-mul`,
-- correctness of `gf-inv` (`a * a^{-1} = 1` for \(a \neq 0\)),
+- correctness of `gf-inv` (`a * a^{-1} = 1` for $a \neq 0$),
 - injectivity of `aes-sbox`.
 
 Certification (requires an ACL2 installation with the community books):

@@ -349,7 +349,7 @@ def matchedResidual (dY gamma L dt dW : F.R) : F.R :=
 theorem matchedResidual_eq_dW (gamma L dt dW : F.R) :
     matchedResidual F dY gamma L dt dW = dW := by
   -- placeholder; the actual theorem is in BrayAliModel
-  sorry   -- kept only as a documentation stub; real proof lives in BrayAliModel
+  exact matched_filter_zero_drift F gamma L dt dW
 
 end FilterKernels
 

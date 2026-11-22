@@ -1,6 +1,6 @@
 /-
   Bray-Ali Four-Proton-State Model & Dephasing/Filtering Diagnostics
-  Pure Lean 4 (no dependencies, zero sorry)
+  Pure Lean 4 (no dependencies, pure Lean 4 core)
 -/
 
 namespace BrayAli

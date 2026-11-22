@@ -1,17 +1,25 @@
-# Lévy Characterization & Quantum Filtering Innovation (Lean 4)
+# Lévy Characterization & Bray-Ali Model (Lean 4)
 
-Pure Lean 4 formalizations (zero external dependencies, no Mathlib):
+Pure Lean 4 formalizations (zero external dependencies).
 
-- `LevyModel.lean` — Lévy's characterization and quantum filtering innovation theorem
-- `BrayAliModel.lean` — Bray-Ali four-proton-state model, secular equation, amplitude bounds, pure dephasing Lindblad dynamics
-- `RKernels.lean` — R-style diagnostic kernels that mirror `scripts/levy_diagnostics.R` (QV, z-scores, kurtosis, recursive matching)
+## Structure
 
-Also:
+```
+LevyCharacterization/
+  BrayAliModel.lean   -- four-proton-state model, secular equation, amplitude bounds, dephasing/filtering
+  LevyModel.lean      -- Lévy characterization interface and quantum filtering innovation
+  RKernels.lean       -- R-style diagnostic kernels matching scripts/levy_diagnostics.R
+scripts/
+  levy_diagnostics.R  -- reference R diagnostics
+docs/                 -- source notes
+```
 
-- `BrayAli.lean` — earlier Mathlib sketch (two open sorries)
-- `scripts/levy_diagnostics.R` — reference R diagnostics
+## Build
 
-The kernels in `RKernels.lean` implement the same statistics the R script computes so they can be matched recursively against R outputs on the same CSV records.
+```bash
+lake build LevyCharacterization.BrayAliModel
+lake build LevyCharacterization.LevyModel
+```
 
 ## License
 

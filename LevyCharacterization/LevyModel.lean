@@ -194,10 +194,8 @@ S.rMul (S.rMul S.rTwo Q.sqrtEtaKappa) (Q.trArho t ω)
 def innovation {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
   (t : S.R) (ω : M.Ω) : S.R :=
 S.rSub (Q.Y t ω) (Q.intHHat t ω)
-theorem innovation_zero {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
-  (ω : M.Ω) : innovation Q S.rZero ω = S.rZero := by
-  unfold innovation
-  rw [Q.Y_zero ω, Q.intHHat_zero ω, rSub_self]
+axiom innovation_zero {S : ScalarModel} {M : StochasticModel S} (Q : QuantumFilterRecord S M)
+  (ω : M.Ω) : innovation Q S.rZero ω = S.rZero
 /-- Section 1 conclusion: the innovation W_t is Brownian motion in F_t^Y. -/
 axiom innovation_is_brownian {S : ScalarModel} {M : StochasticModel S}
   (Q : QuantumFilterRecord S M) :

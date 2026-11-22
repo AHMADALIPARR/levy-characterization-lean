@@ -362,6 +362,11 @@ The same GF(2⁸) multiply and AES S-Box appear as pure combinational Verilog in
 
 These modules are a direct structural counterpart of the shift-and-XOR loop used in the Lean, ACL2, Racket, and C implementations. They produce the same S-Box table shown above.
 
+**Illustrative description.**  
+The multiply is an 8-stage pipeline of pure combinational logic: each stage multiplies the running partial product by \(x\) (a left shift) and reduces modulo the irreducible polynomial whenever the high bit is set, then conditionally XORs that partial product into the accumulator according to the corresponding bit of the second operand. Because the loop is fully unrolled there are no registers. Squaring collapses to a fixed XOR network because, in characteristic 2, \((a_0 + a_1 x + \dots)^2 = a_0 + a_1 x^2 + a_2 x^4 + \dots\) and the higher powers are reduced by the polynomial. The S-Box then builds the inverse by an addition chain of these squarings and multiplies (Itoh–Tsujii), after which four rotated copies of the inverse are XORed together with the constant `0x63` to finish the affine transform. The resulting circuit is a pure combinational function from an 8-bit input to the corresponding S-Box byte.
+
+
+
 ## AES S-Box (reference)
 
 The implementations in `AesGF256.lean`, `acl2/parr-aes.lisp`, `racket/parr-math.rkt`, and `ParrMath/Native/gf256.c` produce the following table (FIPS-197).

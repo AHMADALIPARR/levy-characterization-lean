@@ -87,33 +87,82 @@ $$
 
 satisfies \(H|D\rangle = U|D\rangle\) (`ham4_dark_eigenvector`). The two neutral configurations communicate only through the charged intermediate.
 
-### 4.2 Three-state reduction and secular equation
+### 4.2 Three-state reduction
 
-After projecting out the dark state the remaining subspace is described by `ham3`. The characteristic polynomial of the reduced problem is `secularPoly`. Roots of this cubic determine the exact on-shell coupling via `eps_exact_of_energy` and the rare-state probability via `p_rare_secular_of_energy`.
-
-The paper’s approximate coupling (`kappa_paper`) and the on-shell coupling (`kappa_onshell`) are ordered by `kappa_onshell_le_paper`. Explicit lower and upper bounds replacing the paper’s approximation are given by `eps_bounds` and proved by `eps_lo_le_hi`.
-
-### 4.3 Innovation process
-
-The homodyne innovation is
+The dark state decouples exactly. The complementary subspace is spanned by the symmetric charged combination
 
 $$
-W_t = Y_t - \int_0^t \hat h_s \, ds.
+|B\rangle = \frac{|G^+C^-\rangle + |G^-C^+\rangle}{\sqrt{2}}
 $$
 
-Lévy’s characterization theorem states that a continuous local martingale with unit quadratic variation is a Brownian motion. The diagnostic suite computes
+together with the two neutral states. In this basis the reduced Hamiltonian is the 3×3 matrix `ham3`:
 
-- quadratic variation \(\sum_k (\Delta W_k)^2\) (`quadraticVariation`),
-- the martingale transform \(\sum_k L_k \Delta W_k\) (`martingaleTransform`),
-- the terminal second moment,
-- increment kurtosis,
-- a Kolmogorov–Smirnov statistic against \(\mathcal{N}(0,1)\).
+$$
+H_3 = \begin{pmatrix}
+-\Delta/2 & 0 & -\sqrt{2}t \\
+0 & +\Delta/2 & -\sqrt{2}t \\
+-\sqrt{2}t & -\sqrt{2}t & U
+\end{pmatrix}.
+$$
 
-`matchedResidual_eq_dW` records that a correctly specified filter recovers the driving increment. A misspecified filter is rejected by the martingale test while quadratic variation alone does not detect it.
+(The factor \(\sqrt{2}\) arises because each neutral state couples equally to both charged configurations.) There is still no direct neutral–neutral matrix element.
 
-### 4.4 RealField and ComplexOver
+### 4.3 Secular equation and on-shell coupling
 
-All algebraic reasoning is carried out inside a minimal ordered field with square root (`RealField`) and a complex extension (`ComplexOver`). No external real-number library is used. The derived lemmas (`add_zero`, `mul_one`, `neg_mul_left`, `div_cancel_mul`, …) are the only arithmetic steps available to the proofs.
+The characteristic polynomial of \(H_3\) is the cubic `secularPoly(t, U, D, E)`. A root \(E\) of this cubic determines the exact on-shell coupling
+
+$$
+\varepsilon(E) = \frac{E + \Delta/2}{E - \Delta/2}
+$$
+
+(`eps_exact_of_energy`). The rare-state probability in the ground state is then
+
+$$
+p_\text{rare}(E) = \frac{2t^2}{(E + \Delta/2)^2 + 2t^2}
+$$
+
+(`p_rare_secular_of_energy`). These expressions are identities under the secular constraint; they do not rely on a further approximation.
+
+The paper’s second-order estimate of the effective coupling is
+
+$$
+\kappa_\text{paper} = \frac{2t^2}{U + \Delta/2}
+$$
+
+(`kappa_paper`). The on-shell value obtained from the secular root is `kappa_onshell`. The inequality `kappa_onshell_le_paper` records that the on-shell coupling is at most the paper’s estimate for the parameter regime of the model.
+
+### 4.4 Explicit bounds
+
+In place of the paper’s “≈”, the development supplies an explicit interval for the on-shell coupling. `eps_bounds` returns a pair \((\varepsilon_\text{lo}, \varepsilon_\text{hi})\) derived from the secular cubic and the positivity constraints \(t,\Delta,U > 0\). The theorem `eps_lo_le_hi` proves
+
+$$
+\varepsilon_\text{lo} \le \varepsilon_\text{exact} \le \varepsilon_\text{hi}.
+$$
+
+The proof proceeds by clearing denominators, using the ordering lemmas of `RealField` (`div_le_div_of_nonneg_left`, `mul_le_mul_of_nonneg_left`, …), and cancelling the common positive factors that appear in the eigenvector equation (`eps_exact_from_eigenvector`).
+
+### 4.5 Innovation process and Lévy diagnostics
+
+The homodyne record is filtered to produce the innovation
+
+$$
+W_t = Y_t - \int_0^t \hat h_s\, ds.
+$$
+
+Under the model hypotheses this process is a continuous local martingale. Lévy’s characterization theorem asserts that a continuous local martingale whose quadratic variation is identically \(t\) is a standard Brownian motion. The diagnostic suite therefore computes, for an ensemble of paths:
+
+- realized quadratic variation \(\langle W\rangle_T = \sum_k (\Delta W_k)^2\) (`quadraticVariation`);
+- the martingale transform against the filter \(\sum_k L_k \Delta W_k\) (`martingaleTransform`);
+- the terminal value \(W_T = \sum_k \Delta W_k\) and the second-moment statistic \(E[W_T^2]\);
+- the left-endpoint integral \(\sum_k W_{t_k^-} \Delta W_k\) (the \(W^2 - t\) martingale);
+- increment kurtosis of the normalized increments \(\Delta W / \sqrt{\Delta t}\);
+- a Kolmogorov–Smirnov statistic of a sample of those increments against \(\mathcal{N}(0,1)\).
+
+Each of these reductions is implemented both in `RKernels.lean` and in `scripts/levy_diagnostics.R`. The predicate `matchedResidual_eq_dW` states that, when the filter is correctly specified, the residual equals the driving increment. A deliberately misspecified filter produces a non-zero mean for the martingale transform while leaving the quadratic variation unchanged; the martingale test therefore detects the misspecification that quadratic variation alone misses.
+
+### 4.6 RealField and ComplexOver
+
+All of the above identities are proved inside a minimal ordered field with square root (`RealField`) and a complex extension (`ComplexOver`) sufficient for the characteristic function of the exponential martingale. The only arithmetic steps available to the proofs are the field axioms packaged in the structure and the derived lemmas listed in the primitives inventory. No external real-number library is used.
 
 ## 5. Implementation architecture
 

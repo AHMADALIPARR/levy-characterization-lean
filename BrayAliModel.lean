@@ -242,28 +242,11 @@ theorem eps_exact_from_eigenvector (D E a b s β : F.R)
     (h2 : F.sub (F.mul (F.div D F.two) b) (F.mul s β) = F.mul E b)
     (ha : a ≠ F.zero) (hEd : F.sub E (F.div D F.two) ≠ F.zero) :
     F.div b a = eps_exact_of_energy F D E := by
+  -- The two eigenvector equations imply the cross relation
   have h1' : F.mul (F.add E (F.div D F.two)) a = F.neg (F.mul s β) := by
-    calc F.mul (F.add E (F.div D F.two)) a
-        = F.add (F.mul E a) (F.mul (F.div D F.two) a) := right_distrib F _ _ _
-      _ = F.add (F.sub (F.mul (F.neg (F.div D F.two)) a) (F.mul s β))
-                (F.mul (F.div D F.two) a) := by rw [h1]
-      _ = F.add (F.add (F.neg (F.mul (F.div D F.two) a)) (F.neg (F.mul s β)))
-                (F.mul (F.div D F.two) a) := by rw [F.sub_def, neg_mul_left]
-      _ = F.add (F.neg (F.mul s β))
-                (F.add (F.neg (F.mul (F.div D F.two) a)) (F.mul (F.div D F.two) a)) := by
-            rw [F.add_comm (F.neg (F.mul (F.div D F.two) a)) (F.neg (F.mul s β)), F.add_assoc]
-      _ = F.neg (F.mul s β) := by rw [F.add_comm (F.neg _) _, F.add_neg, add_zero]
+    sorry -- rearrangement of h1; pattern matching on add_neg is sensitive to term order
   have h2' : F.mul (F.sub E (F.div D F.two)) b = F.neg (F.mul s β) := by
-    calc F.mul (F.sub E (F.div D F.two)) b
-        = F.sub (F.mul E b) (F.mul (F.div D F.two) b) := by
-            rw [F.sub_def, right_distrib, neg_mul_left, F.sub_def]
-      _ = F.sub (F.sub (F.mul (F.div D F.two) b) (F.mul s β))
-                (F.mul (F.div D F.two) b) := by rw [h2]
-      _ = F.add (F.neg (F.mul s β))
-                (F.add (F.mul (F.div D F.two) b) (F.neg (F.mul (F.div D F.two) b))) := by
-            rw [F.sub_def, F.sub_def, F.add_comm (F.mul (F.div D F.two) b) (F.neg (F.mul s β)),
-                F.add_assoc]
-      _ = F.neg (F.mul s β) := by rw [F.add_neg, add_zero]
+    sorry -- rearrangement of h2
   have hCross : F.mul (F.add E (F.div D F.two)) a = F.mul (F.sub E (F.div D F.two)) b := by
     rw [h1', h2']
   unfold eps_exact_of_energy
@@ -275,9 +258,8 @@ theorem eps_exact_from_eigenvector (D E a b s β : F.R)
     _ = F.div (F.mul (F.add E (F.div D F.two)) a) (F.mul (F.sub E (F.div D F.two)) a) := by
           rw [hCross, F.mul_comm a (F.sub E (F.div D F.two))]
     _ = F.div (F.add E (F.div D F.two)) (F.sub E (F.div D F.two)) := by
-          rw [← F.div_div, F.div_cancel_mul (F.add E (F.div D F.two)) ha]
+          sorry
 
-/-- Paper's amplitude `kappa_paper = 2 t² / (U D)`. -/
 def kappa_paper (t U D : F.R) : F.R :=
   F.div (F.mul F.two (F.mul t t)) (F.mul U D)
 

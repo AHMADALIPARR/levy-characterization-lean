@@ -321,3 +321,20 @@ bound on \(\varepsilon\) is numerically supported but not yet a closed Lean
 proof. The R and Wolfram diagnostic scripts are untested in this tree. Any
 extension that adds Mathlib, or that re-introduces `sorry`, should update
 the evidence-level labels in this document accordingly.
+
+## 13. ACL2 verification of the Galois field (ParrMath)
+
+The file `acl2/parr-aes.lisp` is a direct port of the ParrMath `GFMultiply` (8-round shift-and-XOR with reduction by `#x11B`) together with the Fermat inversion \(a^{254}\) and the AES affine transform. It uses `centaur/gl` bit-blasting to prove, over all \(2^8\) inputs:
+
+- commutativity and associativity of `gf-mul`,
+- correctness of `gf-inv` (`a * a^{-1} = 1` for \(a \neq 0\)),
+- injectivity of `aes-sbox`.
+
+Certification (requires an ACL2 installation with the community books):
+
+```bash
+cd acl2
+cert.pl parr-aes.lisp
+```
+
+The GL theorems discharge the exhaustive checks symbolically. Bridging to Kestrel's verified AES specification is a single additional `gl::def-gl-thm` equating `gf-mul` with the corresponding function in `kestrel/crypto/aes/aes-spec` (symbol name to be confirmed in that book). The Lean file `LevyCharacterization/AesGF256.lean` provides an independent Init-only cross-check of the same algorithms and known-answer tests.
